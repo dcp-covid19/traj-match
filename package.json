@@ -1,0 +1,32 @@
+{
+  "name": "COVID-19",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --host 0.0.0.0 --disable-host-check",
+    "build": "webpack --config webpack.config.js",
+    "build-worker": "webpack --config worker.webpack.config.js",
+    "build-lsoda": "make -C src/lsoda"
+  },
+  "author": "Ryan Rossiter",
+  "license": "ISC",
+  "devDependencies": {
+    "arraybuffer-loader": "^1.0.7",
+    "css-loader": "^3.2.0",
+    "mini-css-extract-plugin": "^0.8.0",
+    "node-sass": "^4.13.0",
+    "sass-loader": "^8.0.0",
+    "style-loader": "^1.0.0",
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.8",
+    "webpack-dev-server": "^3.8.0"
+  },
+  "dependencies": {
+    "fmin": "0.0.2",
+    "loess": "^1.3.5",
+    "math-erf": "^1.0.0",
+    "seedrandom": "^3.0.5",
+    "table-builder": "^2.1.1"
+  }
+}

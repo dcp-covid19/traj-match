@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Trajectory Matching - COVID-19</title>
+  <meta charset="utf-8">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+  <!-- <script src="http://scheduler.distributed.computer/etc/dcp-config.js"></script>
+  <script src='http://portal.distributed.computer/dcp-client/dcp-client.js'></script> -->
+  <!-- <script src="http://scheduler.nazila.office.kingsds.network/etc/dcp-config.js"></script> -->
+  <script src='http://portal.nazila.office.kingsds.network/dcp-client/dcp-client.js'></script>
+
+  <script src="js/bundle.js"></script>
+
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+  <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" type="text/css" href="./styles/index.css">
+
+</head>
+<body>
+  <header>
+    <nav class="navbar navbar-expand-lg container">
+      <a class="navbar-brand" href="/">
+        <img src="/assets/trajLogo.svg" />
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class='spanTitle' class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/app.html">App</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <section class="application">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="model-tab" data-toggle="tab" href="#model" role="tab" aria-controls="model" aria-selected="true">
+          <img src="/assets/lines.svg" />
+
+          <span class='spanTitle'>Model & Data</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="search-tab" data-toggle="tab" href="#search" role="tab" aria-controls="search" aria-selected="false">
+          <img src="/assets/surface.svg" />
+
+          <span class='spanTitle'>Initial Search</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="refinements-tab" data-toggle="tab" href="#refinements" role="tab" aria-controls="refinements" aria-selected="false">
+          <img src="/assets/box.svg" />
+
+        <span class='spanTitle'>Refinements</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="combine-tab" data-toggle="tab" href="#combine" role="tab" aria-controls="combine" aria-selected="false">
+          <img src="/assets/comb.png" />
+        <span class='spanTitle'>Sample Trajectory</span>
+        </a>
+      </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="model" role="tabpanel" aria-labelledby="model-tab">
+          <!-- Model-->
+          <div class="container">
+            <section class="params">
+              <div class="row">
+                <div class="col-sm-12">
+                </div>
+                <div class="col-sm-6">
+                  <div class="mdc-text-field mdc-text-field--outlined" id="startTimeField">
+                    <input class="mdc-text-field__input" id="modelt0" type="number" value=1940>
+                    <div class="mdc-notched-outline mdc-notched-outline--no-label">
+                      <div class="mdc-notched-outline__leading"></div>
+                      <div class="mdc-notched-outline__notch">
+                        <label class="mdc-floating-label" >Start time for the model(t0)</label>
+                      </div>
+                      <div class="mdc-notched-outline__trailing"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="mdc-text-field mdc-text-field--outlined" id="endTimeField">
+                    <input class="mdc-text-field__input" id="modelTimestep" type="number" value=0.03832991102>
+                    <div class="mdc-notched-outline mdc-notched-outline--no-label">
+                      <div class="mdc-notched-outline__leading"></div>
+                      <div class="mdc-notched-outline__notch">
+                        <label class="mdc-floating-label" >Maximum time step</label>
+                      </div>
+                      <div class="mdc-notched-outline__trailing"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="mdc-text-field mdc-text-field--outlined" id="tZeroField">
+                    <input class="mdc-text-field__input" id="tZero" type="number" value=0>
+                    <div class="mdc-notched-outline mdc-notched-outline--no-label">
+                      <div class="mdc-notched-outline__leading"></div>
+                      <div class="mdc-notched-outline__notch">
+                        <label class="mdc-floating-label">Start time for the model(t0)</label>
+                      </div>
+                      <div class="mdc-notched-outline__trailing"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="mdc-text-field mdc-text-field--outlined" id="dtField">
+                    <input class="mdc-text-field__input" id="dt" type="number" value=0.005>
+                    <div class="mdc-notched-outline mdc-notched-outline--no-label">
+                      <div class="mdc-notched-outline__leading"></div>
+                      <div class="mdc-notched-outline__notch">
+                        <label class="mdc-floating-label">Step size for the model(dt)</label>
+                      </div>
+                      <div class="mdc-notched-outline__trailing"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section class="uploads">
+              <div class="row">
+                <div class="col-sm-12">
+                  <h2>Data</h2>
+
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-6">
+                  <div class="file-upload" id="covariates-file" ondrop="dropHandlerCov(event);" ondragover="dragOverHandlerCov(event);">
+                    <img class="success-img" src='assets/filecomplete.svg' />
+                    <p class="success-message">Covariates Uploaded</p>
+                    <img class="not-uploaded" src='assets/file.svg' />
+                    <p class="not-uploaded">Drop covariates file here</p>
+                    <p class="weak not-uploaded">or</p>
+                    <label id = "label-tab2file1" for="tab2file1-upload" class="custom-button not-uploaded" style="text-align: center">
+                    Browse
+                    </label>
+                    <input id="tab2file1-upload" class="not-uploaded" type="file" style="display:none;">
+
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="file-upload" id="cases-file" ondrop="dropHandlerCase(event);" ondragover="dragOverHandlerCase(event);">
+                    <img class="success-img" src='assets/filecomplete.svg' />
+                    <p class="success-message">reports Uploaded</p>
+                    <img class="not-uploaded" src='assets/file.svg' />
+                    <p class="not-uploaded">Drop reports file here</p>
+                    <p class="weak not-uploaded">or</p>
+                    <label id = "label-tab2file2" for="tab2file2-upload" class="custom-button not-uploaded">
+                    Browse
+                    </label>
+                    <input class="not-uploaded" id="tab2file2-upload" type="file" style="display:none;">
+
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section class="progress-ind">
+              <div class="row">
+                <div class="col-sm-12">
+                  <div class="progress-container">
+                    <div class="progress-item success">
+                      <i class="material-icons failure-i">cancel</i>
+                      <i class="material-icons success-i">check_circle</i>
+                      <p>Parameters</p>
+                    </div>
+                    <div id="cov-and-case" class="progress-item failure">
+                      <i class="material-icons failure-i">cancel</i>
+                      <i class="material-icons success-i">check_circle</i>
+                      <p>Data</p>
+                    </div>
+                    <div class="interact">
+                      <a class="initial-search-1 disabled" id="search-tab" href="#search">Initial Search</a>
+                    </div>
+                    <script>
+                    $('.progress-ind .interact #search-tab').on('click', function (e) {
+                      e.preventDefault()
+                      if (!$(this).hasClass('disabled')) {
+                        $('#search-tab').tab('show')
+                      }
+                    })
+                    </script>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+      </div>
+      <!-- Search-->
+
+      <div class="tab-pane fade" id="search" role="tabpanel" aria-labelledby="search-tab">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-12">
+              <!-- <h2>Parameters</h2> -->
+              <div id="table">
+                <table id ="sobolBound">
+                  <thead>
+                    <td>Model parameter<br />& Initial condition</td>
+                    <td>Fixed/Estimated</td>
+                    <td>Value/Range</td>
+                    <td id="parameter-bound">
+                      <div>Parameter bound</div> 
+                      <div id="parameter-ranges">
+                        <div>None</div><div>0 &lt; x &lt; 1</div><div>x &gt; 0</div>
+                      </div>
+                    </td>
+                  </thead>
+                    <tbody>
+                    <tr>
+                      <td title= 'Basic reproduction number' id ='R0'> R0</td>
+                      <td>
+                        <label class="switch">
+                          <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,0)" autocomplete="off">
+                          <span class="slider round"></span>
+                        </label>
+                      </td>
+                      <td>
+                        <div id=val style="display: none;">
+                         <input class=valInp style="width:180px;"type="number\text"  value="value">
+                        </div>
+                        <div id=rng >
+                         <input style="width:90px;" id="from" type="number" value="0">
+                         <input style="width:90px;" id="to" type="number" value="200">
+                        </div>
+                      </td>
+                      <td>
+                        <div class="flag-bound">
+                        <input id="flag1" type="checkbox" name="i" onclick="checkBox(0,0)" autocomplete="off">
+                        <input id="flag2" type="checkbox" name="i" onclick="checkBox(0,1)" autocomplete="off">
+                        <input id="flag3" type="checkbox" name="i" onclick="checkBox(0,2)" autocomplete="off" checked="checked">
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td title="Amplitude of seasonality" id='amplitude'> \(\alpha\)</td>
+                      <td>
+                        <label class="switch">
+                          <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,1);" autocomplete="off">
+                          <span class="slider round"></span>
+                        </label>
+                      </td>
+                      <td>
+                        <div id=val style="display: none;">
+                         <input class=valInp style="width:180px;"type="number\text"  value="value">
+                        </div>
+                        <div id=rng>
+                         <input style="width:90px;" id="from" type="number\text" value="0">
+                         <input style="width:90px;" id="to" type="number\text" value="1">
+                        </div>
+                      </td>
+                      <td>
+                        <div class="flag-bound">
+                        <input id="flag1" type="checkbox" name="i" onclick="checkBox(1,0)" autocomplete="off">
+                        <input id="flag2" type="checkbox" name="i" onclick="checkBox(1,1)" autocomplete="off" checked="checked">
+                        <input id="flag3" type="checkbox" name="i" onclick="checkBox(1,2)" autocomplete="off">
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td title="Recovery rate" id='gamma'>\(\gamma\)</td>
+                      <td>
+                        <label class="switch">
+                          <input id="p-switch" type="checkbox"  onchange ="activeRngVal(this,2);" autocomplete="off">
+                          <span class="slider round"></span>
+                        </label>
+                      </td>
+                      <td>
+                        <div id=val>
+                         <input class=valInp style="width:180px;"type="number\text"  value="73.5">
+                        </div>
+                        <div id=rng style="display: none;">
+                         <input style="width:90px;" id="from" type="number\text" value="Low bound">
+                         <input style="width:90px;" id="to" type="number\text" value="High bound">
+                        </div>
+                      </td>
+                      <td>
+                        <div class="flag-bound">
+                        <input id="flag1" type="checkbox" name="i" onclick="checkBox(2,0)" autocomplete="off" checked="checked">
+                        <input id="flag2" type="checkbox" name="i" onclick="checkBox(2,1)" autocomplete="off">
+                        <input id="flag3" type="checkbox" name="i" onclick="checkBox(2,1)" autocomplete="off">
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td title="Death minus net immigration rate" id='mu'>\(\mu\)</td>
+                      <td>
+                        <label class="switch">
+                          <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,3);" autocomplete="off">
+                          <span class="slider round"></span>
+                        </label>
+                      </td>
+                      <td>
+                        <div id=val style="display: none;">
+                         <input class=valInp style="width:180px;"type="number\text"  value="value">
+                        </div>
+                        <div id=rng >
+                         <input style="width:90px;" id="from" type="number\text" value="0">
+                         <input style="width:90px;" id="to" type="number\text" value="1">
+                        </div>
+                      </td>
+                      <td>
+                        <div class="flag-bound">
+                        <input id="flag1" type="checkbox" name="i" onclick="checkBox(3,0)" autocomplete="off">
+                        <input id="flag2" type="checkbox" name="i" onclick="checkBox(3,1)" autocomplete="off" checked="checked">
+                        <input id="flag3" type="checkbox" name="i" onclick="checkBox(3,2)" autocomplete="off">
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td title="Incubation rate" id='sigma'>\(\sigma\)</td>
+                      <td>
+                        <label class="switch">
+                          <input id="p-switch" type="checkbox"  onchange ="activeRngVal(this,4);" autocomplete="off">
+                          <span class="slider round"></span>
+                        </label>
+                      </td>
+                      <td>
+                        <div id=val>
+                         <input class=valInp style="width:180px;"type="number\text"  value="45.66">
+                        </div>
+                        <div id=rng style="display: none;">
+                         <input style="width:90px;" id="from" type="number\text" value="Low bound">
+                         <input style="width:90px;" id="to" type="number\text" value="High bound">
+                        </div>
+                      </td>
+                      <td>
+                        <div class="flag-bound">
+                        <input id="flag1" type="checkbox" name="i" onclick="checkBox(4,0)" autocomplete="off" checked="checked">
+                        <input id="flag2" type="checkbox" name="i" onclick="checkBox(4,1)" autocomplete="off">
+                        <input id="flag3" type="checkbox" name="i" onclick="checkBox(4,2)" autocomplete="off">
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td title="Reporting probability" id='rho'>\(\rho\)</td>
+                      <td>
+                        <label class="switch">
+                          <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,5);" autocomplete="off">
+                          <span class="slider round"></span>
+                        </label>
+                      </td>
+                      <td>
+                        <div id=val style="display: none;">
+                         <input class=valInp style="width:180px;"type="number\text"  value="value">
+                        </div>
+                        <div id=rng >
+                         <input style="width:90px;" id="from" type="number\text" value="0">
+                         <input style="width:90px;" id="to" type="number\text" value="1">
+                        </div>
+                      </td>
+                      <td>
+                        <div class="flag-bound">
+                        <input id="flag1" type="checkbox" name="i" onclick="checkBox(5,0)" autocomplete="off">
+                        <input id="flag2" type="checkbox" name="i" onclick="checkBox(5,1)" autocomplete="off" checked="checked">
+                        <input id="flag3" type="checkbox" name="i" onclick="checkBox(5,2)" autocomplete="off">
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td title="Reporting overdispersion" id='psi'>\(\psi\)</td>
+                      <td>
+                        <label class="switch">
+                          <input id="p-switch" type="checkbox" checked="true" onchange ="activeRngVal(this,6);" autocomplete="off">
+                          <span class="slider round"></span>
+                        </label>
+                      </td>
+                      <td>
+                        <div id=val style="display: none;">
+                         <input class=valInp style="width:180px;"type="number\text"  value="value">
+                        </div>
+                        <div id=rng >
+                         <input style="width:90px;" id="from" type="number\text" value="0">
+                         <input style="width:90px;" id="to" type="number\text" value="1">
+                        </div>
+                      </td>
+                      <td>
+                        <div class="flag-bound">
+                        <input id="flag1" type="checkbox" name="i" onclick="checkBox(6,0)" autocomplete="off">
+                        <input id="flag2" type="checkbox" name="i" onclick="checkBox(6,1)" autocomplete="off">
+                        <input id="flag3" type="checkbox" name="i" onclick="checkBox(6,2)" autocomplete="off" checked="checked">
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td title="Initial fraction of susceptibles" id='S_0'> \({S}_{0}\) </td>
+                      <td>
+                        <label class="switch">
+                          <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                          <span class="slider round"></span>
+                        </label>
+                      </td>
+                      <td>
+                        <div id=val>
+                         <input class=valInp style="width:180px;display: none;"type="text"  value="value">
+                        </div>
+                        <div id=rng>
+                         <input style="width:90px;" id="from" type="number\text" value="0">
+                         <input style="width:90px;" id="to" type="number\text" value="0.2">
+                        </div>
+                      </td>
+                      <td>
+                        <div class="flag-bound">
+                        <input id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(27,0)">
+                        <input id="flag2" type="checkbox" name="i" onclick="checkBox(27,1)">
+                        <input id="flag3" type="checkbox" name="i" onclick="checkBox(27,2)">
+                        </div>
+                      </td>
+                    </tr>
+                      <tr>
+                        <td title="Initial fraction of exposed" id='E_0'>\({E}_{0}\)</td>
+                      <td>
+                        <label class="switch">
+                          <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                          <span class="slider round"></span>
+                        </label>
+                      </td>
+                      <td>
+                        <div id=val>
+                         <input class=valInp style="width:180px;display: none;"type="text"  value="value">
+                        </div>
+                        <div id=rng>
+                         <input style="width:90px;" id="from" type="number\text" value="0">
+                         <input style="width:90px;" id="to" type="number\text" value="1e-4">
+                        </div>
+                      </td>
+                      <td>
+                        <div class="flag-bound">
+                        <input id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(28,0)">
+                        <input id="flag2" type="checkbox" name="i" onclick="checkBox(28,1)">
+                        <input id="flag3" type="checkbox" name="i" onclick="checkBox(28,2)">
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td title="Initial fraction of infected" id='I_0'>\({I}_{0}\)</td>
+                      <td>
+                        <label class="switch">
+                          <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                          <span class="slider round"></span>
+                        </label>
+                      </td>
+                      <td>
+                        <div id=val>
+                         <input class=valInp style="width:180px;display: none;"type="text"  value="value">
+                        </div>
+                        <div id=rng>
+                         <input style="width:90px;" id="from" type="number\text" value="0">
+                         <input style="width:90px;" id="to" type="number\text" value="1e-4">
+                        </div>
+                      </td>
+                      <td>
+                        <div class="flag-bound">
+                        <input id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(29,0)">
+                        <input id="flag2" type="checkbox" name="i" onclick="checkBox(29,1)">
+                        <input id="flag3" type="checkbox" name="i" onclick="checkBox(29,2)">
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td title="Initial fraction of recovered" id='R_0'>\({R}_{0}\)</td>
+                      <td>
+                        <label class="switch">
+                          <input id="p-switch" type="checkbox" checked="true" onclick="return false;">
+                          <span class="slider round"></span>
+                        </label>
+                      </td>
+                      <td>
+                        <div id=val>
+                         <input class=valInp style="width:180px;display: none;"type="text"  value="value">
+                        </div>
+                        <div id=rng>
+                         <input style="width:90px;" id="from" type="number\text" value="0">
+                         <input style="width:90px;" id="to" type="number\text" value="0.9">
+                        </div>
+                      </td>
+                      <td>
+                        <div class="flag-bound">
+                        <input id="flag1" type="checkbox" name="i" checked="checked" onclick="checkBox(30,0)">
+                        <input id="flag2" type="checkbox" name="i" onclick="checkBox(30,1)">
+                        <input id="flag3" type="checkbox" name="i" onclick="checkBox(30,2)">
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div style="height:142px;">
+                  <div class="mdc-text-field mdc-text-field--outlined" id="sobolPointField">
+                    <input class="mdc-text-field__input" id="sobolPoint" type="number" value="1">
+                    <div class="mdc-notched-outline mdc-notched-outline--no-label mdc-notched-outline--upgraded mdc-notched-outline--notched">
+                      <div class="mdc-notched-outline__leading"></div>
+                      <div class="mdc-notched-outline__notch veryuniqueclass">
+                        <label class="mdc-floating-label mdc-floating-label--float-above">Number of initial points for the first search</label>
+                      </div>
+                      <div class="mdc-notched-outline__trailing"></div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <div class="mdc-text-field mdc-text-field--outlined" id="refinementField">
+                        <input class="mdc-text-field__input" id="refineIteration" type="number" value="1">
+                        <div class="mdc-notched-outline mdc-notched-outline--no-label mdc-notched-outline--upgraded mdc-notched-outline--notched">
+                          <div class="mdc-notched-outline__leading"></div>
+                          <div class="mdc-notched-outline__notch veryuniqueclass" style="width: 200px !important;">
+                            <label class="mdc-floating-label mdc-floating-label--float-above">Number of refinements iterations</label>
+                          </div>
+                          <div class="mdc-notched-outline__trailing"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-sm-6">
+                      <div class="mdc-text-field mdc-text-field--outlined" id="refinementFieldNumber">
+                        <input class="mdc-text-field__input" id="refineIterationNumber" type="number" value="1">
+                        <div class="mdc-notched-outline mdc-notched-outline--no-label mdc-notched-outline--upgraded mdc-notched-outline--notched">
+                          <div class="mdc-notched-outline__leading"></div>
+                          <div class="mdc-notched-outline__notch veryuniqueclass" style="width: 200px !important;">
+                            <label class="mdc-floating-label mdc-floating-label--float-above">Points per estimated parameter</label>
+                          </div>
+                          <div class="mdc-notched-outline__trailing"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <section class="progress-ind">
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <div class="progress-container">
+                        <div class="progress-item success">
+                          <i class="material-icons failure-i">cancel</i>
+                          <i class="material-icons success-i">check_circle</i>
+                          <p>Parameters</p>
+                        </div>
+                        <div class="progress-item failure" id="model-ind">
+                          <i class="material-icons failure-i">cancel</i>
+                          <i class="material-icons success-i">check_circle</i>
+                          <p>Model</p>
+                        </div>
+                        <div class="progress-item failure" id="model-ind" style="width: 280px !important;">
+                          <label class="switch" style="margin-right: 4%;">
+                            <input id="auto-switch" type="checkbox"  checked="checked" onchange ="activeRefine(this)" autocomplete="off">
+                            <span class="slider round"></span>
+                          </label>
+                          <p id="autoRefinement" style="width: 200px !important;">Automatic refinements</p>
+                        </div>
+                        <div class="interact">
+                          <a class="disabled" id="generateModel">Generate the Model</a>
+                          <a class="disabled custom-button-style-only" id="sobolButton">Compute</a>
+                          <a class="disabled custom-button-style-only" id="sobolButtonDownload"  style="display: none;">Download</a>
+                        </div>
+                        <script>
+                        $('.progress-container .interact #refinements-tab-').on('click', function (e) {
+                          e.preventDefault()
+                          if (!$(this).hasClass('disabled')) {
+                            $('#refinements-tab').tab('show')
+                          }
+                        })
+                        </script>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="output">
+                  <h2>Console</h2>
+                  <div class="initial-points-output">
+                    <textarea id="special-log-sobol"></textarea>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Refinements-->
+      <div class="tab-pane fade" id="refinements" role="tabpanel" aria-labelledby="refinements-tab">
+            <section class="uploads">
+              <div class="container">
+                <div class="row" >
+                <div class="col-sm-12">
+                  <h2>Initial Points</h2>
+                  <div class="file-upload" id="ref-file" ondrop="dropHandlerRef(event);" ondragover="dragOverHandlerRef(event);">
+                    <img class="success-img" src='assets/filecomplete.svg' />
+                    <p class="success-message">Initial Points Uploaded</p>
+                    <img class="not-uploaded" src='assets/file.svg' />
+                    <p class="not-uploaded">Drop initial points file here</p>
+                    <p class="weak not-uploaded">or</p>
+                    <label id = "label-tab4" for="tab4-upload" class="custom-button not-uploaded" style="text-align: center">
+                    Browse
+                    </label>
+                    <input id="tab4-upload" class="not-uploaded" type="file" style="display:none;">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+            <section class='refinement-section'>
+              <div class="container">
+                <div class="row">
+                <div class="col-sm-12">
+                  <h2>Refinements</h2>
+                  <div class="mdc-text-field mdc-text-field--outlined" id="points">
+                    <input class="mdc-text-field__input" id="NumberOfPoints" type="number" value="1">
+                    <div class="mdc-notched-outline mdc-notched-outline--no-label mdc-notched-outline--upgraded mdc-notched-outline--notched">
+                      <div class="mdc-notched-outline__leading"></div>
+                      <div class="mdc-notched-outline__notch veryuniqueclass" style="width: 220px !important;">
+                        <label class="mdc-floating-label mdc-floating-label--float-above">Number of points for each refinement</label>
+                      </div>
+                      <div class="mdc-notched-outline__trailing"></div>
+                    </div>
+                  </div>
+                  <section class="progress-ind" style="padding: 0px">
+                    <div class="container">
+                      <div class="row">
+                      <div class="col-sm-12" style="padding: 0px">
+                        <div class="progress-container">
+                          <div id="ref-init-points" class="progress-item failure">
+                            <i class="material-icons failure-i">cancel</i>
+                            <i class="material-icons success-i">check_circle</i>
+                            <p>Initial Points</p>
+                          </div>
+                          <div class="progress-item success">
+                            <i class="material-icons failure-i">cancel</i>
+                            <i class="material-icons success-i">check_circle</i>
+                            <p>Refinements</p>
+                          </div>
+                          <div class="interact">
+                            <a class="disabled custom-button-style-only" id="buttonRunAll" >Run All</a>
+                            <a class="disabled custom-button-style-only" id="buttonResults">Best Results</a>
+                          </div>
+                          <script>
+                          $('.progress-ind .interact #refinements-tab').on('click', function (e) {
+                            e.preventDefault()
+                            $('#refinements-tab').tab('show')
+                          })
+                          </script>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                  </section>
+                  <div class="row" style="margin-bottom:0px;margin-top: 0px !important;">
+                    <div class="col-sm-12">
+                      <ul class="nav nav-tabs" id="ref-tabs" role="tablist" >
+                        <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#R0_tab"> \(R0\)</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#alpha_tab">\(\alpha\)</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#mu_tab">\(\mu\)</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#rho_tab"> \(\rho\)</a></li>
+                        <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#psi_tab"> \(\psi\)</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+                <div class="row">
+                <div class='col-sm-12'>
+                  <div class="tab-content" id="myTabContent" style="padding: 2em;">
+                    <div class="tab-pane fade show active" id="R0_tab" role="tabpanel">
+                      <div class="row">
+                        <div class="col-sm-12" style="padding-right: 0;">
+                          <div class="ref-option">
+                            <p>Parameter limits</p>
+                            <input type="number" id="limit1R0" value="0">
+                            <p>to</p>
+                            <input type="number" id="limit2R0" value="100">
+                            <button id="buttonRunR0" class="ml-auto disabled" style="margin: 7px 0px 7px 0px;">Generate & Run</button>
+                            <button class="ml-auto disabled" id="R0ButtonDownload" style="margin: 7px 0px 7px 5px !important";>Download</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class='row' >
+                        <div class="col-sm-12 margin">
+                          <div id="plotContainer" >
+                            <div>
+                              <div id="plotR0" ></div>
+                              <div id="graphContainer" >
+                                <div id="fullGraph"></div>
+                              </div>
+                              <div id="tableContainer">
+                                <div id="fullTable"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-sm-12">
+                          <h2>Console</h2>
+                          <textarea id="special-log-R0"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane fade" id="amplitude_tab" role="tabpanel">
+                      <div class="row">
+                        <div class="col-sm-12" style="padding-right: 0;">
+                          <div class="ref-option">
+                            <p>Parameter limits</p>
+                            <input type="number" id="limit1amplitude" value="0">
+                            <p>to</p>
+                            <input type="number" id="limit2amplitude" value="1">
+                            <button id="buttonRunAmplitude" class="ml-auto disabled" style="margin: 7px 0px 7px 0px;">Generate & Run</button>
+                            <button class="ml-auto disabled" id="amplitudeButtonDownload" style="margin: 7px 0px 7px 5px !important";>Download</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class='row'>
+                        <div class="col-sm-12 margin">
+                          <div id="plotContainer" >
+                            <div>
+                              <div id="plot-amplitude" ></div>
+                              <div id="graphContainer" >
+                                <div id="fullGraph"></div>
+                              </div>
+                              <div id="tableContainer">
+                                <div id="fullTable"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-sm-12">
+                          <h2>Console</h2>
+                          <textarea id="special-log-amplitude"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane fade" id="mu_tab" role="tabpanel">
+                      <div class="row">
+                        <div class="col-sm-12" style="padding-right: 0;">
+                          <div class="ref-option">
+                            <p>Parameter limits</p>
+                            <input type="number" id="limit1mu" value="0">
+                            <p>to</p>
+                            <input type="number" id="limit2mu" value="1">
+                            <button id="buttonRunMu" class="ml-auto disabled" style="margin: 7px 0px 7px 0px;">Generate & Run</button>
+                            <button class="ml-auto disabled" id="muButtonDownload" style="margin: 7px 0px 7px 5px !important";>Download</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class='row'>
+                        <div class="col-sm-12 margin">
+                          <div id="plotContainer" >
+                            <div>
+                              <div id="plot-mu" ></div>
+                              <div id="graphContainer" >
+                                <div id="fullGraph"></div>
+                              </div>
+                              <div id="tableContainer">
+                                <div id="fullTable"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-sm-12">
+                          <h2>Console</h2>
+                          <textarea id="special-log-mu"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane fade" id="rho_tab" role="tabpanel">
+                      <div class="row">
+                        <div class="col-sm-12" style="padding-right: 0;">
+                          <div class="ref-option">
+                            <p>Parameter limits</p>
+                            <input type="number" id="limit1rho" value="0">
+                            <p>to</p>
+                            <input type="number" id="limit2rho" value="100">
+                            <button id="buttonRunRho" class="ml-auto disabled" style="margin: 7px 0px 7px 0px;">Generate & Run</button>
+                            <button class="ml-auto disabled" id="rhoButtonDownload" style="margin: 7px 0px 7px 5px !important";>Download</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class='row'>
+                        <div class="col-sm-12 margin">
+                          <div id="plotContainer" >
+                            <div>
+                              <div id="plot-rho" ></div>
+                              <div id="graphContainer" >
+                                <div id="fullGraph"></div>
+                              </div>
+                              <div id="tableContainer">
+                                <div id="fullTable"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-sm-12">
+                          <h2>Console</h2>
+                          <textarea id="special-log-rho"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane fade" id="psi_tab" role="tabpanel">
+                      <div class="row">
+                        <div class="col-sm-12" style="padding-right: 0;">
+                          <div class="ref-option">
+                            <p>Parameter limits</p>
+                            <input type="number" id="limit1psi" value="0">
+                            <p>to</p>
+                            <input type="number" id="limit2psi" value="100">
+                            <button id="buttonRunPsi" class="ml-auto disabled" style="margin: 7px 0px 7px 0px;">Generate & Run</button>
+                            <button class="ml-auto disabled" id="psiButtonDownload" style="margin: 7px 0px 7px 5px !important";>Download</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class='row'>
+                        <div class="col-sm-12 margin">
+                          <div id="plotContainer" >
+                            <div>
+                              <div id="plot-psi" ></div>
+                              <div id="graphContainer" >
+                                <div id="fullGraph"></div>
+                              </div>
+                              <div id="tableContainer">
+                                <div id="fullTable"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-sm-12">
+                          <h2>Console</h2>
+                          <textarea id="special-log-psi"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+      </div>
+      <div class="tab-pane fade show container" id="combine" role="tabpanel" aria-labelledby="model-tab">
+        <div class="row mb-5">
+            <div class="col-sm-6 align-items-center d-flex">
+              <div id="tableResult">
+                <table id ="bestResult-table">
+                  <thead>
+                    <td>LogLik </td>
+                    <td><input class="form-control" type="number"  value=0 ></td>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>\(R0\)</td>
+                      <td><input class="form-control" type="number"  value=0 ></td>
+                    </tr>
+                    <tr>
+                      <td>\(\alpha\)</td>
+                      <td><input class="form-control" type="number"  value=0 ></td>
+                    </tr>
+                    <tr>
+                      <td>\(\gamma\)</td>
+                      <td><input class="form-control" type="number"  value=0 ></td>
+                    </tr>
+                    <tr>
+                      <td>\(\mu\)</td>
+                      <td><input class="form-control" type="number"  value=0 ></td>
+                    </tr>
+                    <tr>
+                      <td>\(\sigma\)</td>
+                      <td><input class="form-control" type="number"  value=0 ></td>
+                    </tr>
+                    <tr>
+                      <td>\(\rho\)</td>
+                      <td><input class="form-control" type="number"  value=0 ></td>
+                    </tr>
+                    <tr>
+                      <td>\(\psi\)</td>
+                      <td><input class="form-control" type="number"  value=0 ></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <section class="uploads">
+                <div id="plotContainer">
+                  <div id="plot-sampleTraj" ></div>
+                  <div id="graphContainer" >
+                    <div id="fullGraph"></div>
+                  </div>
+                  <div id="tableContainer">
+                    <div id="fullTable"></div>
+                  </div>
+                </div>
+              </section>
+            </div>
+        </div>
+      </div>
+  <footer>
+    <div class='container'>
+      <div class="row">
+        <div class="col-sm-4 text-center">
+          <img class="logo" src="/assets/footerLogo.svg" />
+        </div>
+        <div class="col-sm-4 text-center adjust-links">
+          <a href="/">HOME</a>
+          <a href="/app.html">APP</a>
+        </div>
+        <div class="col-sm-4 text-right">
+          <img src='/assets/footerdcl.svg' />
+        </div>
+      </div>
+      <div class="row row-margin">
+        <div class="col-sm-4">
+
+        </div>
+        <div class="col-sm-4 text-center">
+          <p>© 2019 DCL. All rights reserved.</p>
+        </div>
+        <div class="col-sm-4 legal text-right">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+  <script src="js/forms-min.js"></script>
+  <script src="./htmlFunctions.js"></script>
+
+  </body>
+  </html>
