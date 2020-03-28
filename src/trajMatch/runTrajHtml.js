@@ -7,11 +7,8 @@ let  fmin = require('fmin')
 /** Main entry point to user interface
  */
 TrajMatch = function (params, populationData, birthrateData, dataCases, times, index, deltaT) {
-  console.log('b4')
-  let t =new Date()
   TrajPopulation = mathLib.interpolator(populationData)
   TrajBirthrate = mathLib.interpolator(birthrateData)
-  console.log(new Date - t)
   return TrajMain(params, TrajPopulation, TrajBirthrate, dataCases, times, index, deltaT)
 }
 

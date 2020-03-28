@@ -14,10 +14,9 @@ const workerfn = self.workerfn = (...args) => {
   let result;
   let date = new Date();
   try {
-    // progress();
+    progress();
     console.error("STARTING TRAJMATCH");
     result = trajMatch(...args);
-    console.log('workerfn result', result)
     if (isNaN(result[result.length - 1])) {
       result = [...new Array(args[0].length).fill(0), NaN];
     }

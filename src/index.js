@@ -417,25 +417,25 @@ function start (workerFn) {
           let cols = row.querySelectorAll('td')
           cols[1].querySelector('input').value = bestResults[0][i]
         }
-        //DELETE FROM HERE  
+         
         /* Refreshing the plots in refinments*/ 
-        // for(let i = 0; i < 12; i++) {
-        //   let bestValue = bestResults[0][plotIndex[i]]
-        //   if(!fixedIndices.includes(plotIndex[i])){
-        //     document.getElementById('limit1'+ Object.keys(Index)[plotIndex[i]]).value = bestValue * 0.8;
-        //     if(plotIndex[i] === Index.f_l || plotIndex[i] === Index.f_n || plotIndex[i] === Index.f_a || 
-        //     plotIndex[i] === Index.c || plotIndex[i] === Index.obsprob) {
-        //       document.getElementById('limit2'+ Object.keys(Index)[plotIndex[i]]).value = Math.min(bestValue * 1.2, 1);
-        //     } else {
-        //       document.getElementById('limit2'+ Object.keys(Index)[plotIndex[i]]).value = bestValue * 1.2;
-        //     }
-        //     lowerLimit = lowerBoundsInit[plotIndex[i]] 
-        //     upperLimit = (upperBoundsInit[plotIndex[i]] < bestValue) ? ( 1.2 * bestValue): upperBoundsInit[plotIndex[i]];
-        //     param_lims[plotIndex[i]] = [lowerLimit,upperLimit];
-        //     trigerPlot(bestResults, plotIndex[i], 'plot'+Object.keys(Index)[plotIndex[i]], bandwidth, param_lims[plotIndex[i]],indexPlot[i])
-        //   }
-        // }
-        // console.log('Plots have been refreshed')
+        for(let i = 0; i < 5; i++) {
+          let bestValue = bestResults[0][plotIndex[i]]
+          if(!fixedIndices.includes(plotIndex[i])){
+            document.getElementById('limit1'+ Object.keys(Index)[plotIndex[i]]).value = bestValue * 0.8;
+            if(plotIndex[i] === Index.f_l || plotIndex[i] === Index.f_n || plotIndex[i] === Index.f_a || 
+            plotIndex[i] === Index.c || plotIndex[i] === Index.obsprob) {
+              document.getElementById('limit2'+ Object.keys(Index)[plotIndex[i]]).value = Math.min(bestValue * 1.2, 1);
+            } else {
+              document.getElementById('limit2'+ Object.keys(Index)[plotIndex[i]]).value = bestValue * 1.2;
+            }
+            lowerLimit = lowerBoundsInit[plotIndex[i]] 
+            upperLimit = (upperBoundsInit[plotIndex[i]] < bestValue) ? ( 1.2 * bestValue): upperBoundsInit[plotIndex[i]];
+            param_lims[plotIndex[i]] = [lowerLimit,upperLimit];
+            trigerPlot(bestResults, plotIndex[i], 'plot'+Object.keys(Index)[plotIndex[i]], bandwidth, param_lims[plotIndex[i]],indexPlot[i])
+          }
+        }
+        console.log('Plots have been refreshed')
 
         updateRefinementsGenerateBtn(generateModelFlag, initalRefinPoints.length);
       }
@@ -474,9 +474,9 @@ function start (workerFn) {
         }
         
         param_lims[plotIndex[i]] = [lowerLimit,upperLimit];
-        // setTimeout(() => {
-          // trigerPlot(bestResults, plotIndex[i], 'plot'+Object.keys(Index)[plotIndex[i]], bandwidth, param_lims[plotIndex[i]], indexPlot[i])
-        // });
+        setTimeout(() => {
+          trigerPlot(bestResults, plotIndex[i], 'plot'+Object.keys(Index)[plotIndex[i]], bandwidth, param_lims[plotIndex[i]], indexPlot[i])
+        });
       }
     }
     
