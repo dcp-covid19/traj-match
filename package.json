@@ -23,6 +23,8 @@
     "webpack-dev-server": "^3.10.3"
   },
   "dependencies": {
+    "balloon-css": "^1.0.4",
+    "dcp-covid19.github.io": "git+https://github.com/dcp-covid19/dcp-covid19.github.io.git",
     "fmin": "0.0.2",
     "loess": "^1.3.5",
     "math-erf": "^1.0.0",

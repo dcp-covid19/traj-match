@@ -65,7 +65,7 @@ body .tab-content {
           cursor: pointer;
         }
         &.uploaded {
-          background-color: var(--custom-yellow);
+          background-color: $theme-yellow;
         }
       }
       &.uploaded {
@@ -82,5 +82,10 @@ body .tab-content {
         }
       }
     }
+  }
+  .console-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
   }
 }

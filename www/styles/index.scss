@@ -1,3 +1,4 @@
+@import '~dcp-covid19.github.io/style/common';
 @import 'variables';
 @import 'fonts';
 @import 'global';
@@ -13,7 +14,7 @@
 @import 'app/refinements';
 @import 'app/combine';
 
-
+@import "~balloon-css/src/balloon";
 @import 'bootstrap/bootstrap';
 
 .mdc-notched-outline__notch.veryuniqueclass {
@@ -79,6 +80,19 @@ table#bestResult-table {
       padding-right: 1em;
       width:10%;
     }
+  }
+}
+
+.preload-data {
+  width: 100%;
+  i {
+    top: 0;
+    position: absolute !important; /* balloon css doesn't like this */
+    color: #ddd;
+    padding: 10px;
+  }
+  i#refinements-demo-data {
+    top: 55px; /* it's the html's fault */
   }
 }
 

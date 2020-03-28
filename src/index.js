@@ -15,20 +15,23 @@ let loess2 = require('./plot/loess2.js')
 // Used to load emsdk module
 const Module = window.Module = {};
 const nameArray = ['R0' , 'amplitude', 'gamma', 'mu', 'sigma', 'pho', 'psi', 'S_0', 'E-0' , 'I_0' , 'R_0', 'LogLik'];
-function start (workerFn) { 
+function logStatus (name, status) {
+  let statusP = document.querySelector(`#${name}-console-header p`);
+  statusP.innerText = `${status.computed} out of ${status.total} results computed. ${status.distributed} distributed.` ;
+}
+
+function start (workerFn) {
   let dataCovarUpload = [], dataCasesUpload = [];
   let covFlag = 0, caseFlag = 0;
-  let data = [], populationData = [], birthData = [], times = [];
-  let initalRefinPoints = [], estimateIndices = [];
-  let temp , t0;
+  let initalRefinPoints = [];
+  let populationData = [], birthData = [], times = [];
+  let t0;
   let fixedIndices = [];
-  let covars;
-  let lowerBounds = [], upperBounds = [], flagBoundArray = [];
+  let flagBoundArray = [];
   let generateModelFlag = 0;
   let autoFlag;
   let refineIterationNumber;
   let bestResults = [];
-  let simHarranged = [];
   let jobs = {};
   let param_lims = new Array(12).fill([0,1]);
   let bandwidth = 0.5;
@@ -36,11 +39,8 @@ function start (workerFn) {
   let plotIndex = [Index.R0, Index.amplitude, Index.mu, Index.rho, Index.psi];
   let indexPlot = ['$R0 $', '$\\alpha $', '$\\gamma $', '$\\mu $', '$\\sigma $', '$\\rho $', '$\\psi$']   
   let timeExe = []
-  let modelTimestep = Number(document.getElementById('modelTimestep').value)
   let indexAll
-
- 
-
+  let modelTimestep = Number(document.getElementById('modelTimestep').value)
   // Stub for compute.for, will be replaced with DCP API later.
   const runComputeFor = function(data, ...args) {
     // Local exec
@@ -93,14 +93,7 @@ function start (workerFn) {
     label.classList.toggle('uploaded')
     dataCovarUpload = []
     var reader = new FileReader()
-    reader.onload = function () {
-      var lines = this.result.split('\n')
-      for (var line = 1; line < lines.length; line++) {
-        if(lines[line].length) {
-          dataCovarUpload.push(lines[line].split(','))
-        }
-      }
-    }
+    reader.onload = function () { loadCovarData(this.result) };
     reader.readAsText(file)
     covFlag=1;
     if(caseFlag ==1 ) {
@@ -131,14 +124,7 @@ function start (workerFn) {
     label.classList.toggle('uploaded')
     dataCasesUpload = []
     var reader = new FileReader ()
-    reader.onload = function () {
-      var lines = this.result.split('\n')
-      for (var line = 1; line < lines.length; line++) {
-        if(lines[line].length) {
-          dataCasesUpload.push(lines[line].split(','))
-        }
-      }
-    }
+    reader.onload = function () { loadReportsData(this.result) };
     reader.readAsText(file)
     caseFlag = 1;
     if(covFlag ==1 ) {
@@ -302,6 +288,7 @@ function start (workerFn) {
       });
       
       specialLog('#special-log-sobol', 'Accessing Distributed Computer...');
+      job.on('status', (status) => logStatus('sobol', status))
       job.on('accepted', () => {
         specialLog('#special-log-sobol', 'Job accepted, working...');
       })
@@ -315,7 +302,6 @@ function start (workerFn) {
             if(res.result[0] !== 0) {
               accumulatedResults.push(res.result);
             }
-            specialLog('#special-log-sobol', res, resultsRetrieved / sobolSet.length);
             $('#sobolButtonDownload').removeClass('disabled');
 
              downloadButtonSobol.onclick = function () {
@@ -394,63 +380,7 @@ function start (workerFn) {
       $('#buttonResults').removeClass('disabled');
       initalRefinPoints = [];
       var reader = new FileReader ();
-      reader.onload = function () {
-        var lines = this.result.split('\n');
-        // First row is just names. Skip first row, start at index 1.
-        for (var line = 1; line < lines.length; line++) {
-          if(lines[line].length) {
-            initalRefinPoints.push(lines[line].split(','));
-          }
-        }
-        for ( let i = 0; i <initalRefinPoints.length; i++) {
-          for (let j = 0; j < initalRefinPoints[0].length; j++) {
-            initalRefinPoints[i][j] = Number(initalRefinPoints[i][j]);
-          }
-        }
-        
-        bestResults = rmSameRow(initalRefinPoints);
-        /* data in simHarranged in needed for ploting sample trajectory*/
-        let simH = mathLib.TrajIntegrate(bestResults[0], populationData, birthData, dataCasesUpload, times, modelTimestep);
-        simH.shift();
-      
-        let dataSampleTraj = []
-        for (let i = 0; i < dataCasesUpload.length; i++) {
-          if(!isNaN(dataCasesUpload[i][1])) {
-            dataSampleTraj.push(Number(dataCasesUpload[i][1]))//time,data,simulation
-          } 
-        }
-      
-        trigerPlotTrajectory(dataCasesUpload, simH, 'plot-sampleTraj')
-        let bestPonitTable = document.getElementById('bestResult-table')
-        let rows = bestPonitTable.querySelectorAll('tr')
-        rows[0].querySelectorAll('td')[1].querySelector('input').value = bestResults[0][Index.LogLik]
-        for(i = 1; i < rows.length; i++) {
-          let row = rows[i]
-          let cols = row.querySelectorAll('td')
-          cols[1].querySelector('input').value = bestResults[0][i]
-        }
-         
-        /* Refreshing the plots in refinments*/ 
-        for(let i = 0; i < 5; i++) {
-          let bestValue = bestResults[0][plotIndex[i]]
-          if(!fixedIndices.includes(plotIndex[i])){
-            document.getElementById('limit1'+ Object.keys(Index)[plotIndex[i]]).value = bestValue * 0.8;
-            if(plotIndex[i] === Index.f_l || plotIndex[i] === Index.f_n || plotIndex[i] === Index.f_a || 
-            plotIndex[i] === Index.c || plotIndex[i] === Index.obsprob) {
-              document.getElementById('limit2'+ Object.keys(Index)[plotIndex[i]]).value = Math.min(bestValue * 1.2, 1);
-            } else {
-              document.getElementById('limit2'+ Object.keys(Index)[plotIndex[i]]).value = bestValue * 1.2;
-            }
-            lowerLimit = lowerBoundsInit[plotIndex[i]] 
-            upperLimit = (upperBoundsInit[plotIndex[i]] < bestValue) ? ( 1.2 * bestValue): upperBoundsInit[plotIndex[i]];
-            param_lims[plotIndex[i]] = [lowerLimit,upperLimit];
-            trigerPlot(bestResults, plotIndex[i], 'plot'+Object.keys(Index)[plotIndex[i]], bandwidth, param_lims[plotIndex[i]],indexPlot[i])
-          }
-        }
-        console.log('Plots have been refreshed')
-
-        updateRefinementsGenerateBtn(generateModelFlag, initalRefinPoints.length);
-      }
+      reader.onload = function () { loadRefinements(this.result) };
       reader.readAsText(file);
       $('#ref-init-points').toggleClass('success');
       $('#ref-init-points').toggleClass('failure');
@@ -646,6 +576,7 @@ function start (workerFn) {
         specialLog('#special-log-R0', 'Failed to deploy job: ' + e.message);
       });
       specialLog('#special-log-R0', 'Accessing Distributed Computer...');
+      job.on('status', (status) => logStatus('R0', status))
       job.on('accepted', () => {
         specialLog('#special-log-R0', 'Job accepted, working...');
       })
@@ -660,7 +591,6 @@ function start (workerFn) {
               accumulatedResults.push(res.result);
               bestResults.push(res.result);
             }
-            specialLog('#special-log-R0', res, resultsRetrieved / generatedSet.length);
             $('#R0ButtonDownload').removeClass('disabled');
 
             downloadButtonR0.onclick = function () {
@@ -751,6 +681,7 @@ function start (workerFn) {
         specialLog('#special-log-amplitude', 'Failed to deploy job: ' + e.message);
       });
       specialLog('#special-log-amplitude', 'Accessing Distributed Computer...');
+      job.on('status', (status) => logStatus('amplitude', status))
       job.on('accepted', () => {
         specialLog('#special-log-amplitude', 'Job accepted, working...');
       })
@@ -765,7 +696,6 @@ function start (workerFn) {
               accumulatedResults.push(res.result);
               bestResults.push(res.result);
             }
-            specialLog('#special-log-amplitude', res, resultsRetrieved / generatedSet.length);
             $('#amplitudeButtonDownload').removeClass('disabled');
 
             downloadButtonAmplitude.onclick = function () {
@@ -856,6 +786,7 @@ function start (workerFn) {
         specialLog('#special-log-mu', 'Failed to deploy job: ' + e.message);
       });
       specialLog('#special-log-mu', 'Accessing Distributed Computer...');
+      job.on('status', (status) => logStatus('mu', status))
       job.on('accepted', () => {
         specialLog('#special-log-mu', 'Job accepted, working...');
       })
@@ -870,7 +801,6 @@ function start (workerFn) {
               accumulatedResults.push(res.result);
               bestResults.push(res.result);
             }
-            specialLog('#special-log-mu', res, resultsRetrieved / generatedSet.length);
             $('#muButtonDownload').removeClass('disabled');
 
             downloadButtonMu.onclick = function () {
@@ -961,6 +891,7 @@ function start (workerFn) {
         specialLog('#special-log-rho', 'Failed to deploy job: ' + e.message);
       });
       specialLog('#special-log-rho', 'Accessing Distributed Computer...');
+      job.on('status', (status) => logStatus('rho', status))
       job.on('accepted', () => {
         specialLog('#special-log-rho', 'Job accepted, working...');
       })
@@ -975,7 +906,6 @@ function start (workerFn) {
               accumulatedResults.push(res.result);
               bestResults.push(res.result);
             }
-            specialLog('#special-log-rho', res, resultsRetrieved / generatedSet.length);
             $('#rhoButtonDownload').removeClass('disabled');
 
             downloadButtonRho.onclick = function () {
@@ -1066,6 +996,7 @@ function start (workerFn) {
         specialLog('#special-log-psi', 'Failed to deploy job: ' + e.message);
       });
       specialLog('#special-log-psi', 'Accessing Distributed Computer...');
+      job.on('status', (status) => logStatus('psi', status))
       job.on('accepted', () => {
         specialLog('#special-log-psi', 'Job accepted, working...');
       })
@@ -1080,7 +1011,6 @@ function start (workerFn) {
               accumulatedResults.push(res.result);
               bestResults.push(res.result);
             }
-            specialLog('#special-log-psi', res, resultsRetrieved / generatedSet.length);
             $('#psiButtonDownload').removeClass('disabled');
 
             downloadButtonPsi.onclick = function () {
@@ -1110,7 +1040,124 @@ function start (workerFn) {
       });
       return job;
     }
-  } 
+  }
+  function loadCovarData (data) {
+    var lines = data.split('\n')
+    for (var line = 1; line < lines.length; line++) {
+      if(lines[line].length) {
+        dataCovarUpload.push(lines[line].split(','))
+      }
+    }
+  }
+  
+  function loadReportsData (data) {
+    var lines = data.split('\n')
+    for (var line = 1; line < lines.length; line++) {
+      if(lines[line].length) {
+        dataCasesUpload.push(lines[line].split(','))
+      }
+    }
+  }
+  
+  function loadRefinements (data) {
+      var lines = data.split('\n');
+      // First row is just names. Skip first row, start at index 1.
+      for (var line = 1; line < lines.length; line++) {
+        if(lines[line].length) {
+          initalRefinPoints.push(lines[line].split(','));
+        }
+      }
+      for ( let i = 0; i <initalRefinPoints.length; i++) {
+        for (let j = 0; j < initalRefinPoints[0].length; j++) {
+          initalRefinPoints[i][j] = Number(initalRefinPoints[i][j]);
+        }
+      }
+      
+      bestResults = rmSameRow(initalRefinPoints);
+      /* data in simHarranged in needed for ploting sample trajectory*/
+      let simH = mathLib.TrajIntegrate(bestResults[0], populationData, birthData, dataCasesUpload, times, modelTimestep);
+      simH.shift();
+    
+      let dataSampleTraj = []
+      for (let i = 0; i < dataCasesUpload.length; i++) {
+        if(!isNaN(dataCasesUpload[i][1])) {
+          dataSampleTraj.push(Number(dataCasesUpload[i][1]))//time,data,simulation
+        } 
+      }
+    
+      trigerPlotTrajectory(dataCasesUpload, simH, 'plot-sampleTraj')
+      let bestPonitTable = document.getElementById('bestResult-table')
+      let rows = bestPonitTable.querySelectorAll('tr')
+      rows[0].querySelectorAll('td')[1].querySelector('input').value = bestResults[0][Index.LogLik]
+      for(i = 1; i < rows.length; i++) {
+        let row = rows[i]
+        let cols = row.querySelectorAll('td')
+        cols[1].querySelector('input').value = bestResults[0][i]
+      }
+       
+      /* Refreshing the plots in refinments*/ 
+      for(let i = 0; i < 5; i++) {
+        let bestValue = bestResults[0][plotIndex[i]]
+        if(!fixedIndices.includes(plotIndex[i])){
+          document.getElementById('limit1'+ Object.keys(Index)[plotIndex[i]]).value = bestValue * 0.8;
+          if(plotIndex[i] === Index.f_l || plotIndex[i] === Index.f_n || plotIndex[i] === Index.f_a || 
+          plotIndex[i] === Index.c || plotIndex[i] === Index.obsprob) {
+            document.getElementById('limit2'+ Object.keys(Index)[plotIndex[i]]).value = Math.min(bestValue * 1.2, 1);
+          } else {
+            document.getElementById('limit2'+ Object.keys(Index)[plotIndex[i]]).value = bestValue * 1.2;
+          }
+          lowerLimit = lowerBoundsInit[plotIndex[i]] 
+          upperLimit = (upperBoundsInit[plotIndex[i]] < bestValue) ? ( 1.2 * bestValue): upperBoundsInit[plotIndex[i]];
+          param_lims[plotIndex[i]] = [lowerLimit,upperLimit];
+          trigerPlot(bestResults, plotIndex[i], 'plot'+Object.keys(Index)[plotIndex[i]], bandwidth, param_lims[plotIndex[i]],indexPlot[i])
+        }
+      }
+      console.log('Plots have been refreshed')
+  
+      updateRefinementsGenerateBtn(generateModelFlag, initalRefinPoints.length);
+  }
+  document.getElementById('covariates-demo-data').onclick = async function () {
+    let resp = await fetch('./assets/data/covar.csv');
+    let data = await resp.text();
+    loadCovarData(data);
+    let label = document.getElementById('label-tab2file1')
+    label.innerHTML = 'Uploaded'
+    label.classList.toggle('not-uploaded')
+    label.classList.toggle('uploaded')
+    covFlag=1;
+    if(caseFlag ==1 ) {
+      $('#cov-and-case').addClass('success');
+      $('#cov-and-case').removeClass('failure');
+      $('.initial-search-1, #generateModel').removeClass('disabled');
+    }
+  }
+  document.getElementById('reports-demo-data').onclick = async function () {
+    let resp = await fetch('./assets/data/cases.csv');
+    let data = await resp.text();
+    loadReportsData(data);
+    let label = document.getElementById('label-tab2file2')
+    label.innerHTML = 'Uploaded'
+    label.classList.toggle('not-uploaded')
+    label.classList.toggle('uploaded')
+    caseFlag = 1;
+    if(covFlag ==1 ) {
+      $('#cov-and-case').addClass('success');
+      $('#cov-and-case').removeClass('failure');
+      $('.initial-search-1, #generateModel').removeClass('disabled');
+    }
+  }
+  document.getElementById('refinements-demo-data').onclick = async function () {
+    let resp = await fetch('./assets/data/initial-results.csv');
+    let data = await resp.text();
+    loadRefinements(data);
+    let label = document.getElementById('label-tab4')
+    label.innerHTML = 'Uploaded'
+    label.classList.toggle('not-uploaded')
+    label.classList.toggle('uploaded')
+    $('#ref-init-points').toggleClass('success');
+    $('#ref-init-points').toggleClass('failure');
+  }
+
 }
 
 // Helper functions
