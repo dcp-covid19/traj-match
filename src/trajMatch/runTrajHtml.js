@@ -56,8 +56,6 @@ TrajMain = function (params, interpolPopulation, interpolBirth, dataCases, times
     }
   }
 
-  progress(1)
-
   //* calculate log likelihood
   function logLik (estimated) {
     var likvalue = 0
@@ -79,20 +77,10 @@ TrajMain = function (params, interpolPopulation, interpolBirth, dataCases, times
       likvalue = snippet.dmeasure(rho, psi, simH[i], dataCases[i][1], 1)
       loglik = loglik + likvalue
     }
-
-    // Send progress updates every 5 seconds.
-    if(Date.now() - lastProgressUpdate > 5000) {
-      if(psudoProgress < 0.70) {
-        psudoProgress += 0.01
-      }
-
-      lastProgressUpdate = Date.now()
-      progress(0.20 + psudoProgress);
-    }
-    console.log(params, loglik)
+    progress()
     return [-(loglik).toFixed(6)]
   }
-  console.log('returns??', params, solution.fx)
+
   return [...params, -solution.fx]
 }
 

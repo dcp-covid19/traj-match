@@ -341,11 +341,10 @@ function start (workerFn) {
         downloadButtonSobol.onclick = function () {
           Csv(res, 'initial-results.csv');
         }
-        // console.log("Got timing results:", timeExe);
+        console.log("Got timing results:", timeExe);
 
         if(autoFlag) {
           Csv(res, 'initial-results.csv');
-          console.log(res)
           initalRefinPoints = res;
           bestPoint = initalRefinPoints[0];
           updateRefinementsGenerateBtn(generateModelFlag, initalRefinPoints.length);
@@ -399,8 +398,8 @@ function start (workerFn) {
         
         bestResults = rmSameRow(initalRefinPoints);
         /* data in simHarranged in needed for ploting sample trajectory*/
-        let simH = mathLib.TrajIntegrate(bestResults[0], populationData, birthData, dataCasesUpload, times, modelTimestep) // simH is  cumulative
-        simH.shift();console.log(simH[0])
+        let simH = mathLib.TrajIntegrate(bestResults[0], populationData, birthData, dataCasesUpload, times, modelTimestep);
+        simH.shift();
       
         let dataSampleTraj = []
         for (let i = 0; i < dataCasesUpload.length; i++) {
@@ -482,8 +481,8 @@ function start (workerFn) {
     }
     
     /* data in simHarranged in needed for ploting sample trajectory*/
-    let simH = mathLib.TrajIntegrate(bestResults[0], populationData, birthData, dataCasesUpload, times, modelTimestep) // simH is  cumulative
-    simH.shift();console.log(simH[0])
+    let simH = mathLib.TrajIntegrate(bestResults[0], populationData, birthData, dataCasesUpload, times, modelTimestep);
+    simH.shift();
   
     let dataSampleTraj = []
     for (let i = 0; i < dataCasesUpload.length; i++) {
