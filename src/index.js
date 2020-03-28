@@ -11,6 +11,7 @@ let mathLib = require('./LIB/mathLib')
 let Index = require('./LIB/indices')
 let plotProfile = require('./plot/plotProfile.js')
 let loess2 = require('./plot/loess2.js')
+let demoKeystore = require('../www/assets/demo-keystore.json')
 
 // Used to load emsdk module
 const Module = window.Module = {};
@@ -241,8 +242,11 @@ function start (workerFn) {
   let downloadButtonSobol = document.getElementById('sobolButtonDownload');
   
 /* Initial Search */
-  runButtonSobol.onclick = function (cancelOnly=false) {
-    
+  runButtonSobol.onclick = async function (cancelOnly=false) {
+    let keystore = await new dcp.wallet.Keystore(demoKeystore)
+    await keystore.unlock(null, 24 * 60 * 60)
+    dcp.wallet.add(keystore)
+
     if ($('#sobolButton').hasClass('disabled')) return false;
     if ($('#sobolButton').hasClass('running')) {
       jobs['sobol'].cancel();
