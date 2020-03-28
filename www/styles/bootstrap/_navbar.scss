@@ -17,6 +17,7 @@
 
 .navbar {
   position: relative;
+  height: 80px;
   display: flex;
   flex-wrap: wrap; // allow us to do the line break for collapsing content
   align-items: center;
@@ -40,16 +41,17 @@
 // Used for brand, project, or site names.
 
 .navbar-brand {
-  display: inline-block;
-  padding-top: $navbar-brand-padding-y;
-  padding-bottom: $navbar-brand-padding-y;
-  margin-right: $navbar-padding-x;
-  @include font-size($navbar-brand-font-size);
-  line-height: inherit;
+  display: flex;
   white-space: nowrap;
+  align-items: center;
 
   @include hover-focus {
     text-decoration: none;
+  }
+  span {
+    font-size: '1rem'; 
+    line-height: '1.2rem';
+    margin-left: 0.5em;
   }
 }
 

@@ -11,13 +11,13 @@ body .tab-content {
     margin: 12px 0 12px 0;
     &--focused {
       .mdc-floating-label {
-        color: $blue;
+        color: $theme-green;
       }
       .mdc-notched-outline__notch,.mdc-notched-outline__leading, .mdc-notched-outline__trailing {
-        border-color: $blue !important;
+        border-color: $theme-green !important;
       }
       .mdc-text-field__input {
-        caret-color: $blue;
+        caret-color: $theme-green;
 
       }
     }
@@ -63,6 +63,9 @@ body .tab-content {
         font-weight: 500;
         &:hover {
           cursor: pointer;
+        }
+        &.uploaded {
+          background-color: var(--custom-yellow);
         }
       }
       &.uploaded {
