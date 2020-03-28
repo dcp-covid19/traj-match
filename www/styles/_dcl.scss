@@ -228,7 +228,7 @@ div#refinements div.panel.active {
 }
 
 input:checked + .slider {
-  background-color: #2252e8;
+  background-color: $theme-green;
 }
 
 input:focus + .slider {

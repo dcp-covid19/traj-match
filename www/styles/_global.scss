@@ -26,7 +26,7 @@ html {
       }
     }
     button {
-      background-color: $blue;
+      background-color: $theme-green;
       padding: 12px 24px;
       font-family: $body;
       font-weight: 500;
@@ -68,8 +68,11 @@ html {
       padding: 16px 32px;
     }
     .navbar .navbar-nav .nav-item .nav-link {
-      color: $grey;
+      color: #aaa;
       font-weight: 500;
+      &.active {
+        color: $theme-green;
+      }
     }
     .spanTitle{
       opacity: 0.4;

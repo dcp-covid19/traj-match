@@ -84,10 +84,13 @@ function start (workerFn) {
   /* File picker for uploading dataCovarUpload.csv */
   var fileChooser = document.getElementById('tab2file1-upload')
   fileChooser.onclick = function () { this.value = '' }
-  document.getElementById('tab2file1-upload').onchange = function () {
-    document.getElementById('label-tab2file1').innerHTML = 'Uploaded'
-    document.getElementById('label-tab2file1').style.backgroundColor = '#ffbf00'
+  fileChooser.onchange = function () {
     var file = this.files[0]
+    if (!file) return;
+    let label = document.getElementById('label-tab2file1')
+    label.innerHTML = 'Uploaded'
+    label.classList.toggle('not-uploaded')
+    label.classList.toggle('uploaded')
     dataCovarUpload = []
     var reader = new FileReader()
     reader.onload = function () {
@@ -120,9 +123,12 @@ function start (workerFn) {
 
   /* File picker for uploading dataCasesUpload.csv */
   document.getElementById('tab2file2-upload').onchange = function () {
-    document.getElementById('label-tab2file2').innerHTML = 'Uploaded'
-    document.getElementById('label-tab2file2').style.backgroundColor = '#ffbf00'
     var file = this.files[0]
+    if (!file) return;
+    let label = document.getElementById('label-tab2file2')
+    label.innerHTML = 'Uploaded'
+    label.classList.toggle('not-uploaded')
+    label.classList.toggle('uploaded')
     dataCasesUpload = []
     var reader = new FileReader ()
     reader.onload = function () {
@@ -378,8 +384,14 @@ function start (workerFn) {
     }
     else {
       document.getElementById('tab4-upload').onchange = function () {
+
+        var file = this.files[0]
+      if (!file) return;
+      let label = document.getElementById('label-tab4')
+      label.innerHTML = 'Uploaded'
+      label.classList.toggle('not-uploaded')
+      label.classList.toggle('uploaded')
       $('#buttonResults').removeClass('disabled');
-      var file = this.files[0];
       initalRefinPoints = [];
       var reader = new FileReader ();
       reader.onload = function () {
@@ -440,8 +452,6 @@ function start (workerFn) {
         updateRefinementsGenerateBtn(generateModelFlag, initalRefinPoints.length);
       }
       reader.readAsText(file);
-      document.getElementById('label-tab4').innerHTML = 'Uploaded';
-      document.getElementById('label-tab4').style.backgroundColor = '#ffbf00';
       $('#ref-init-points').toggleClass('success');
       $('#ref-init-points').toggleClass('failure');
       }
@@ -543,6 +553,7 @@ function start (workerFn) {
       $('#buttonRunAll').removeClass('disabled');
       $('#buttonRunAll').addClass('running');
       BestResultsButton.style.display = '';
+
       let estimbuttuns = [
         runButtonR0,
         runButtonAmplitude,

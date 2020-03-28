@@ -211,9 +211,12 @@ function start () {
     this.value = ''
   }
   document.getElementById('tab2file1-upload').onchange = function () {
-    document.getElementById('label-tab2file1').innerHTML = 'Uploaded'
-    document.getElementById('label-tab2file1').style.backgroundColor = '#ffbf00'
     var file = this.files[0]
+    if (!file) return;
+    let label = document.getElementById('label-tab2file1')
+    label.innerHTML = 'Uploaded'
+    label.classList.toggle('not-uploaded')
+    label.classList.toggle('uploaded')
     dataCovar = []
     var reader = new FileReader()
     reader.onload = function () {
@@ -258,9 +261,12 @@ function start () {
   }
 
   document.getElementById('tab2file2-upload').onchange = function () {
-    document.getElementById('label-tab2file2').innerHTML = 'Uploaded'
-    document.getElementById('label-tab2file2').style.backgroundColor = '#ffbf00'
     var file = this.files[0]
+    if (!file) return;
+    let label = document.getElementById('label-tab2file2')
+    label.innerHTML = 'Uploaded'
+    label.classList.toggle('not-uploaded')
+    label.classList.toggle('uploaded')
     dataCases = []
     var reader = new FileReader ()
     reader.onload = function () {

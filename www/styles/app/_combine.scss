@@ -3,10 +3,10 @@ section.combine-files {
     display: flex;
     flex-direction: column;
     .combine-input {
-      color: $blue;
+      color: $theme-green;
     }
     .custom-upload {
-      color: $blue;
+      color: $theme-green;
       &:hover {
         cursor: pointer;
       }

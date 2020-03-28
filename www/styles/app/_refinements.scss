@@ -15,8 +15,8 @@ body section.refinement-section {
         font-weight: 400;
         font-size: 18px;
         &.active {
-          border-bottom: solid 2px $blue;
-          color: $blue;
+          border-bottom: solid 2px $theme-green;
+          color: $theme-green;
         }
       }
     }
@@ -51,7 +51,7 @@ body section.refinement-section {
   button {
     display: block;
     &:hover {
-      background-color: $blue;
+      background-color: $theme-green;
     }
   }
 }
