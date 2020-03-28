@@ -26,7 +26,7 @@ TrajMain = function (params, interpolPopulation, interpolBirth, dataCases, times
       place = [],
       solution
 
-  progress(0)
+  progress()
   
   //*Change the initial values of estimating parameters(with index one) to the log or logit scale.
   // From those Index.amplitude and rho are in logit scale and the rest are in log scale

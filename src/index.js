@@ -33,7 +33,7 @@ function start (workerFn) {
   let param_lims = new Array(12).fill([0,1]);
   let bandwidth = 0.5;
   let lowerBoundsInit = [], upperBoundsInit = [];
-  let plotIndex = [Index.R0, Index.amplitude, Index.gamma, Index.mu, Index.sigma, Index.rho, Index.psi];
+  let plotIndex = [Index.R0, Index.amplitude, Index.mu, Index.rho, Index.psi];
   let indexPlot = ['$R0 $', '$\\alpha $', '$\\gamma $', '$\\mu $', '$\\sigma $', '$\\rho $', '$\\psi$']   
   let timeExe = []
   let modelTimestep = Number(document.getElementById('modelTimestep').value)
@@ -291,83 +291,82 @@ function start (workerFn) {
       
       
       var job = jobs['sobol'] = runComputeFor(sobolSet, populationData, birthData, dataCasesUpload, times, indexAll, modelTimestep);
-      // job.on('myCustomError', (e) => {
-      //   specialLog('#special-log-sobol', 'Failed to deploy job: ' + e.message);
-      // });
+      job.on('myCustomError', (e) => {
+        specialLog('#special-log-sobol', 'Failed to deploy job: ' + e.message);
+      });
       
-      // specialLog('#special-log-sobol', 'Accessing Distributed Computer...');
-      // job.on('accepted', () => {
-      //   specialLog('#special-log-sobol', 'Job accepted, working...');
-      // })
-      // let resultsRetrieved = 0;
+      specialLog('#special-log-sobol', 'Accessing Distributed Computer...');
+      job.on('accepted', () => {
+        specialLog('#special-log-sobol', 'Job accepted, working...');
+      })
+      let resultsRetrieved = 0;
 
-      // job.on('result', function(res) {
-      //   // Show the results come back from the workers in consule and html.
-      //   if(typeof res != 'undefined') {
-      //     if(res.result) {
-      //       resultsRetrieved++;
-      //       if(res.result[0] !== 0) {
-      //         accumulatedResults.push(res.result);
-      //       }
-      //       specialLog('#special-log-sobol', res, resultsRetrieved / sobolSet.length);
-      //       $('#sobolButtonDownload').removeClass('disabled');
+      job.on('result', function(res) {
+        // Show the results come back from the workers in consule and html.
+        if(typeof res != 'undefined') {
+          if(res.result) {
+            resultsRetrieved++;
+            if(res.result[0] !== 0) {
+              accumulatedResults.push(res.result);
+            }
+            specialLog('#special-log-sobol', res, resultsRetrieved / sobolSet.length);
+            $('#sobolButtonDownload').removeClass('disabled');
 
-      //        downloadButtonSobol.onclick = function () {
-      //         accumulatedResults.sort(mathLib.sortFunction);
-      //          Csv(accumulatedResults, 'initial-results.csv');
-      //        }
-      //      }
-      //   }
-      // });
-      // job.on('complete', async function(res) {
-      //   await job.results.fetch();
-      //   let iter = 1;
-      //   res = job.results.values();
-      //   console.log('onComplete', res, typeof res);
-      //   if(autoFlag) {
-      //     specialLog('#special-log-sobol', '\nInitial search complete!  Refining...');
-      //   } else {
-      //     specialLog('#special-log-sobol', '\nJob complete! Click download above for results.'); 
-      //   }
+             downloadButtonSobol.onclick = function () {
+              accumulatedResults.sort(mathLib.sortFunction);
+               Csv(accumulatedResults, 'initial-results.csv');
+             }
+           }
+        }
+      });
+      job.on('complete', async function(res) {
+        await job.results.fetch();
+        let iter = 1;
+        res = job.results.values();
+        console.log('onComplete', res, typeof res);
+        if(autoFlag) {
+          specialLog('#special-log-sobol', '\nInitial search complete!  Refining...');
+        } else {
+          specialLog('#special-log-sobol', '\nJob complete! Click download above for results.'); 
+        }
         
-      //   runButtonSobol.innerText = "Generate & Run"
-      //   res = Array.from(res)
-      //   res.sort(mathLib.sortFunction);
-      //   res = res.filter((row) => row[0] !== 0 && row[row.length - 1] < 0);
-      //   $('#buttonRunAll').removeClass('disabled');
+        runButtonSobol.innerText = "Generate & Run"
+        res = Array.from(res)
+        res.sort(mathLib.sortFunction);
+        res = res.filter((row) => row[0] !== 0 && row[row.length - 1] < 0);
+        $('#buttonRunAll').removeClass('disabled');
 
-      //   runButtonSobol.innerText = "Generate & Run";
-      //   $('#sobolButton').removeClass('running');
-      //   downloadButtonSobol.onclick = function () {
-      //     Csv(res, 'initial-results.csv');
-      //   }
-      //   console.log("Got timing results:", timeExe);
+        runButtonSobol.innerText = "Generate & Run";
+        $('#sobolButton').removeClass('running');
+        downloadButtonSobol.onclick = function () {
+          Csv(res, 'initial-results.csv');
+        }
+        // console.log("Got timing results:", timeExe);
 
-      //   if(autoFlag) {
-      //     Csv(res, 'initial-results.csv');
-      //     initalRefinPoints = res;
-      //     bestPoint = initalRefinPoints[0];
-      //     updateRefinementsGenerateBtn(generateModelFlag, initalRefinPoints.length);
-      //     for (let ii = 0; ii < refineIterationNumber; ii++) {              
-      //       for(let i = 0; i < 12; i++) {   
-      //         let bestValue = bestPoint[plotIndex[i]] ;  
-      //         if(!fixedIndices.includes(plotIndex[i])){   
-      //           document.getElementById('limit1'+ Object.keys(Index)[plotIndex[i]]).value = bestValue * 0.8;    
-      //           if(plotIndex[i] === Index.f_l || plotIndex[i] === Index.f_n || plotIndex[i] === Index.f_a ||    
-      //           plotIndex[i] === Index.c || plotIndex[i] === Index.obsprob) {   
-      //             document.getElementById('limit2'+ Object.keys(Index)[plotIndex[i]]).value = Math.min(bestValue * 1.2, 1);   
-      //           } else {    
-      //             document.getElementById('limit2'+ Object.keys(Index)[plotIndex[i]]).value = bestValue * 1.2;    
-      //           }   
-      //         }   
-      //       }
-      //       await runAllButton.onclick();
-      //       initalRefinPoints = BestResultsButton.onclick(iter);
-      //       iter++
-      //     }
-          
-      //   }
-      // });
+        if(autoFlag) {
+          Csv(res, 'initial-results.csv');
+          console.log(res)
+          initalRefinPoints = res;
+          bestPoint = initalRefinPoints[0];
+          updateRefinementsGenerateBtn(generateModelFlag, initalRefinPoints.length);
+          for (let ii = 0; ii < refineIterationNumber; ii++) {              
+            for(let i = 0; i < 5; i++) {  
+              let bestValue = bestPoint[plotIndex[i]] ;  
+              if(!fixedIndices.includes(plotIndex[i])){   
+                document.getElementById('limit1'+ Object.keys(Index)[plotIndex[i]]).value = bestValue * 0.8;    
+                if(plotIndex[i] === Index.amplitude || plotIndex[i] === Index.mu || plotIndex[i] === Index.rho) {   
+                  document.getElementById('limit2'+ Object.keys(Index)[plotIndex[i]]).value = Math.min(bestValue * 1.2, 1);   
+                } else {    
+                  document.getElementById('limit2'+ Object.keys(Index)[plotIndex[i]]).value = bestValue * 1.2;    
+                }   
+              }   
+            }
+            await runAllButton.onclick();
+            initalRefinPoints = BestResultsButton.onclick(iter);
+            iter++
+          } 
+        }
+      });
     }
   }
   
@@ -400,25 +399,25 @@ function start (workerFn) {
         
         bestResults = rmSameRow(initalRefinPoints);
         /* data in simHarranged in needed for ploting sample trajectory*/
-        // let simH = mathLib.TrajIntegrate(bestResults[0], populationData, birthData, dataCasesUpload, times, modelTimestep) // simH is  cumulative
-        // simH.shift();console.log(simH[0])
+        let simH = mathLib.TrajIntegrate(bestResults[0], populationData, birthData, dataCasesUpload, times, modelTimestep) // simH is  cumulative
+        simH.shift();console.log(simH[0])
       
-        // let dataSampleTraj = []
-        // for (let i = 0; i < dataCasesUpload.length; i++) {
-        //   if(!isNaN(dataCasesUpload[i][1])) {
-        //     dataSampleTraj.push(Number(dataCasesUpload[i][1]))//time,data,simulation
-        //   } 
-        // }
+        let dataSampleTraj = []
+        for (let i = 0; i < dataCasesUpload.length; i++) {
+          if(!isNaN(dataCasesUpload[i][1])) {
+            dataSampleTraj.push(Number(dataCasesUpload[i][1]))//time,data,simulation
+          } 
+        }
       
-        // trigerPlotTrajectory(dataCasesUpload, simH, 'plot-sampleTraj')
-        // let bestPonitTable = document.getElementById('bestResult-table')
-        // let rows = bestPonitTable.querySelectorAll('tr')
-        // rows[0].querySelectorAll('td')[1].querySelector('input').value = bestResults[0][Index.LogLik]
-        // for(i = 1; i < rows.length; i++) {
-        //   let row = rows[i]
-        //   let cols = row.querySelectorAll('td')
-        //   cols[1].querySelector('input').value = bestResults[0][i]
-        // }
+        trigerPlotTrajectory(dataCasesUpload, simH, 'plot-sampleTraj')
+        let bestPonitTable = document.getElementById('bestResult-table')
+        let rows = bestPonitTable.querySelectorAll('tr')
+        rows[0].querySelectorAll('td')[1].querySelector('input').value = bestResults[0][Index.LogLik]
+        for(i = 1; i < rows.length; i++) {
+          let row = rows[i]
+          let cols = row.querySelectorAll('td')
+          cols[1].querySelector('input').value = bestResults[0][i]
+        }
         //DELETE FROM HERE  
         /* Refreshing the plots in refinments*/ 
         // for(let i = 0; i < 12; i++) {
@@ -461,7 +460,7 @@ function start (workerFn) {
     } else {
       Csv(bestResults, 'best-results.csv');
     }
-    for(let i = 0; i < 12; i++) {
+    for(let i = 0; i < 5; i++) {
       let bestValue = bestPoint[plotIndex[i]]
       if(!fixedIndices.includes(plotIndex[i])){
         document.getElementById('limit1'+ Object.keys(Index)[plotIndex[i]]).value = bestValue * 0.8;
@@ -474,39 +473,33 @@ function start (workerFn) {
           document.getElementById('limit2'+ Object.keys(Index)[plotIndex[i]]).value = bestValue * 1.2;
           upperLimit = 1.5 * bestValue
         }
-        // lowerLimit = (lowerBoundsInit[plotIndex[i]] > bestValue) ? ( 0.8 * bestValue): lowerBoundsInit[plotIndex[i]];
-        // upperLimit = (upperBoundsInit[plotIndex[i]] < bestValue) ? ( 1.2 * bestValue): upperBoundsInit[plotIndex[i]];
+        
         param_lims[plotIndex[i]] = [lowerLimit,upperLimit];
-        setTimeout(() => {
-          trigerPlot(bestResults, plotIndex[i], 'plot'+Object.keys(Index)[plotIndex[i]], bandwidth, param_lims[plotIndex[i]], indexPlot[i])
-        });
+        // setTimeout(() => {
+          // trigerPlot(bestResults, plotIndex[i], 'plot'+Object.keys(Index)[plotIndex[i]], bandwidth, param_lims[plotIndex[i]], indexPlot[i])
+        // });
       }
     }
     
     /* data in simHarranged in needed for ploting sample trajectory*/
-    let simH = integrate(bestResults[0], t0, times, Number(dt.value),populationData, birthData) // simH is  cumulative
-    simHarranged[0] = simH[0]
-    for ( let i = 1; i < simH.length; i++) {
-      simHarranged[i] = (simH[i] - simH[i - 1]) * bestPoint[Index.obsprob]
-    }
+    let simH = mathLib.TrajIntegrate(bestResults[0], populationData, birthData, dataCasesUpload, times, modelTimestep) // simH is  cumulative
+    simH.shift();console.log(simH[0])
+  
     let dataSampleTraj = []
-    for (let i = 0; i < data.length; i++) {
-      if(!isNaN(data[i][1])) {
-        dataSampleTraj.push([data[i][0]/365 + Number(startTime.value),data[i][1], simHarranged[i]])//time,data,simulation
+    for (let i = 0; i < dataCasesUpload.length; i++) {
+      if(!isNaN(dataCasesUpload[i][1])) {
+        dataSampleTraj.push(Number(dataCasesUpload[i][1]))//time,data,simulation
       } 
     }
-    trigerPlotTrajectory(dataSampleTraj, 'plot-sampleTraj')
+
+    trigerPlotTrajectory(dataCasesUpload, simH, 'plot-sampleTraj')
     let bestPonitTable = document.getElementById('bestResult-table')
     let rows = bestPonitTable.querySelectorAll('tr')
-    rows[0].querySelectorAll('td')[1].querySelector('input').value = bestPoint[Index.LogLik]
-    let j = 0
+    rows[0].querySelectorAll('td')[1].querySelector('input').value = bestResults[0][Index.LogLik]
     for(i = 1; i < rows.length; i++) {
       let row = rows[i]
       let cols = row.querySelectorAll('td')
-      cols[1].querySelector('input').value = bestPoint[j]
-      cols[3].querySelector('input').value = bestPoint[j+1]
-      cols[5].querySelector('input').value = bestPoint[j+2]
-      j += 3
+      cols[1].querySelector('input').value = bestResults[0][i]
     }
 
     return bestResults;
@@ -551,7 +544,6 @@ function start (workerFn) {
       $('#buttonRunAll').removeClass('disabled');
       $('#buttonRunAll').addClass('running');
       BestResultsButton.style.display = '';
-      /home/nazila/Gitlab/dcp-r/COVID19/src/LIB/create.js
       let estimbuttuns = [
         runButtonR0,
         runButtonAmplitude,
@@ -637,56 +629,56 @@ function start (workerFn) {
       }
 
       let generatedSet = generate.generateSet(initalRefinPoints, Index.R0, logScale, [lowerLimit,upperLimit], flagBound, NoPoints);
-      // let accumulatedResults = []
+      let accumulatedResults = []
       
       let job = jobs['R0'] = runComputeFor(generatedSet, populationData, birthData, dataCasesUpload, times, indexAll, modelTimestep);
-      // job.on('myCustomError', (e) => {
-      //   specialLog('#special-log-R0', 'Failed to deploy job: ' + e.message);
-      // });
-      // specialLog('#special-log-R0', 'Accessing Distributed Computer...');
-      // job.on('accepted', () => {
-      //   specialLog('#special-log-R0', 'Job accepted, working...');
-      // })
-      // let resultsRetrieved = 0;
+      job.on('myCustomError', (e) => {
+        specialLog('#special-log-R0', 'Failed to deploy job: ' + e.message);
+      });
+      specialLog('#special-log-R0', 'Accessing Distributed Computer...');
+      job.on('accepted', () => {
+        specialLog('#special-log-R0', 'Job accepted, working...');
+      })
+      let resultsRetrieved = 0;
 
-      // job.on('result', function(res) {
-      //   // Show the results come back from the workers in consule and html.
-      //   if(typeof res != 'undefined') {
-      //     if(res.result) {
-      //       resultsRetrieved++;
-      //       if(res.result[0] !== 0) {
-      //         accumulatedResults.push(res.result);
-      //         bestResults.push(res.result);
-      //       }
-      //       specialLog('#special-log-R0', res, resultsRetrieved / generatedSet.length);
-      //       $('#R0ButtonDownload').removeClass('disabled');
+      job.on('result', function(res) {
+        // Show the results come back from the workers in consule and html.
+        if(typeof res != 'undefined') {
+          if(res.result) {
+            resultsRetrieved++;
+            if(res.result[0] !== 0) {
+              accumulatedResults.push(res.result);
+              bestResults.push(res.result);
+            }
+            specialLog('#special-log-R0', res, resultsRetrieved / generatedSet.length);
+            $('#R0ButtonDownload').removeClass('disabled');
 
-      //       downloadButtonR0.onclick = function () {
-      //         accumulatedResults.sort(mathLib.sortFunction);
-      //         Csv(accumulatedResults,'R0.csv.csv');
-      //       }
-      //     }
-      //   }
-      // });
-      // job.on('complete', async function(res) {
-      //   await job.results.fetch();
-      //   res = job.results.values();
-      //   console.log('onComplete', res);
-      //   runButtonR0.innerText = "Generate & Run"
-      //   $('#buttonRunR0').removeClass('running');
-      //   res = Array.from(res)
-      //   res.sort(mathLib.sortFunction);
-      //   specialLog('#special-log-R0', '\nJob complete! Click download for results.');
-      //   res = Array.from(res)
-      //   res.sort(mathLib.sortFunction);
-      //   res = res.filter((row) => row[0] !== 0 && row[row.length - 1] < 0);
-      //   $('#buttonRunAll').removeClass('disabled');
+            downloadButtonR0.onclick = function () {
+              accumulatedResults.sort(mathLib.sortFunction);
+              Csv(accumulatedResults,'R0.csv.csv');
+            }
+          }
+        }
+      });
+      job.on('complete', async function(res) {
+        await job.results.fetch();
+        res = job.results.values();
+        console.log('onComplete', res);
+        runButtonR0.innerText = "Generate & Run"
+        $('#buttonRunR0').removeClass('running');
+        res = Array.from(res)
+        res.sort(mathLib.sortFunction);
+        specialLog('#special-log-R0', '\nJob complete! Click download for results.');
+        res = Array.from(res)
+        res.sort(mathLib.sortFunction);
+        res = res.filter((row) => row[0] !== 0 && row[row.length - 1] < 0);
+        $('#buttonRunAll').removeClass('disabled');
 
-      //   downloadButtonR0.onclick = function () {
-      //     Csv(res,'R0.csv.csv');
-      //   }
-      // });
-      // return job;
+        downloadButtonR0.onclick = function () {
+          Csv(res,'R0.csv.csv');
+        }
+      });
+      return job;
     }
   } 
 
@@ -700,7 +692,7 @@ function start (workerFn) {
     if ($('#buttonRunAmplitude').hasClass('running')) {
       jobs['amplitude'].cancel();
       specialLog('#special-log-amplitude', 'Cancelling job...');
-      runButtonamplitude.innerText = "Generate & Run";
+      runButtonAmplitude.innerText = "Generate & Run";
       $('#buttonRunAmplitude').removeClass('running');
       setTimeout(() => $('#buttonRunAll').removeClass('disabled'),0);
       $('#buttonRunAll').addClass('running')
@@ -724,8 +716,8 @@ function start (workerFn) {
       $('#amplitudeButtonDownload').addClass('disabled');
       logScale = 0, flagBound = 0
 
-      lowerLimit = document.getElementById('limit1Amplitude').value
-      upperLimit = document.getElementById('limit2Amplitude').value
+      lowerLimit = document.getElementById('limit1amplitude').value
+      upperLimit = document.getElementById('limit2amplitude').value
       lowerLimit = Number(lowerLimit);
       upperLimit = Number(upperLimit);
       param_lims[Index.amplitude] = [lowerLimit,upperLimit]
@@ -742,56 +734,56 @@ function start (workerFn) {
       }
 
       let generatedSet = generate.generateSet(initalRefinPoints, Index.amplitude, logScale, [lowerLimit,upperLimit], flagBound, NoPoints);
-      // let accumulatedResults = []
+      let accumulatedResults = []
       
       let job = jobs['ampitude'] = runComputeFor(generatedSet, populationData, birthData, dataCasesUpload, times, indexAll, modelTimestep);
-      // job.on('myCustomError', (e) => {
-      //   specialLog('#special-log-amplitude', 'Failed to deploy job: ' + e.message);
-      // });
-      // specialLog('#special-log-amplitude', 'Accessing Distributed Computer...');
-      // job.on('accepted', () => {
-      //   specialLog('#special-log-amplitude', 'Job accepted, working...');
-      // })
-      // let resultsRetrieved = 0;
+      job.on('myCustomError', (e) => {
+        specialLog('#special-log-amplitude', 'Failed to deploy job: ' + e.message);
+      });
+      specialLog('#special-log-amplitude', 'Accessing Distributed Computer...');
+      job.on('accepted', () => {
+        specialLog('#special-log-amplitude', 'Job accepted, working...');
+      })
+      let resultsRetrieved = 0;
 
-      // job.on('result', function(res) {
-      //   // Show the results come back from the workers in consule and html.
-      //   if(typeof res != 'undefined') {
-      //     if(res.result) {
-      //       resultsRetrieved++;
-      //       if(res.result[0] !== 0) {
-      //         accumulatedResults.push(res.result);
-      //         bestResults.push(res.result);
-      //       }
-      //       specialLog('#special-log-amplitude', res, resultsRetrieved / generatedSet.length);
-      //       $('#amplitudeButtonDownload').removeClass('disabled');
+      job.on('result', function(res) {
+        // Show the results come back from the workers in consule and html.
+        if(typeof res != 'undefined') {
+          if(res.result) {
+            resultsRetrieved++;
+            if(res.result[0] !== 0) {
+              accumulatedResults.push(res.result);
+              bestResults.push(res.result);
+            }
+            specialLog('#special-log-amplitude', res, resultsRetrieved / generatedSet.length);
+            $('#amplitudeButtonDownload').removeClass('disabled');
 
-      //       downloadButtonAmplitude.onclick = function () {
-      //         accumulatedResults.sort(mathLib.sortFunction);
-      //         Csv(accumulatedResults,'amplitude.csv.csv');
-      //       }
-      //     }
-      //   }
-      // });
-      // job.on('complete', async function(res) {
-      //   await job.results.fetch();
-      //   res = job.results.values();
-      //   console.log('onComplete', res);
-      //   runButtonAmplitude.innerText = "Generate & Run"
-      //   $('#buttonRunAmplitude').removeClass('running');
-      //   res = Array.from(res)
-      //   res.sort(mathLib.sortFunction);
-      //   specialLog('#special-log-amplitude', '\nJob complete! Click download for results.');
-      //   res = Array.from(res)
-      //   res.sort(mathLib.sortFunction);
-      //   res = res.filter((row) => row[0] !== 0 && row[row.length - 1] < 0);
-      //   $('#buttonRunAll').removeClass('disabled');
+            downloadButtonAmplitude.onclick = function () {
+              accumulatedResults.sort(mathLib.sortFunction);
+              Csv(accumulatedResults,'amplitude.csv.csv');
+            }
+          }
+        }
+      });
+      job.on('complete', async function(res) {
+        await job.results.fetch();
+        res = job.results.values();
+        console.log('onComplete', res);
+        runButtonAmplitude.innerText = "Generate & Run"
+        $('#buttonRunAmplitude').removeClass('running');
+        res = Array.from(res)
+        res.sort(mathLib.sortFunction);
+        specialLog('#special-log-amplitude', '\nJob complete! Click download for results.');
+        res = Array.from(res)
+        res.sort(mathLib.sortFunction);
+        res = res.filter((row) => row[0] !== 0 && row[row.length - 1] < 0);
+        $('#buttonRunAll').removeClass('disabled');
 
-      //   downloadButtonAmplitude.onclick = function () {
-      //     Csv(res,'amplitude.csv.csv');
-      //   }
-      // });
-      // return job;
+        downloadButtonAmplitude.onclick = function () {
+          Csv(res,'amplitude.csv.csv');
+        }
+      });
+      return job;
     }
   } 
 
@@ -847,56 +839,56 @@ function start (workerFn) {
       }
 
       let generatedSet = generate.generateSet(initalRefinPoints, Index.mu, logScale, [lowerLimit,upperLimit], flagBound, NoPoints);
-      // let accumulatedResults = []
+      let accumulatedResults = []
       
       let job = jobs['mu'] = runComputeFor(generatedSet, populationData, birthData, dataCasesUpload, times, indexAll, modelTimestep);
-      // job.on('myCustomError', (e) => {
-      //   specialLog('#special-log-mu', 'Failed to deploy job: ' + e.message);
-      // });
-      // specialLog('#special-log-mu', 'Accessing Distributed Computer...');
-      // job.on('accepted', () => {
-      //   specialLog('#special-log-mu', 'Job accepted, working...');
-      // })
-      // let resultsRetrieved = 0;
+      job.on('myCustomError', (e) => {
+        specialLog('#special-log-mu', 'Failed to deploy job: ' + e.message);
+      });
+      specialLog('#special-log-mu', 'Accessing Distributed Computer...');
+      job.on('accepted', () => {
+        specialLog('#special-log-mu', 'Job accepted, working...');
+      })
+      let resultsRetrieved = 0;
 
-      // job.on('result', function(res) {
-      //   // Show the results come back from the workers in consule and html.
-      //   if(typeof res != 'undefined') {
-      //     if(res.result) {
-      //       resultsRetrieved++;
-      //       if(res.result[0] !== 0) {
-      //         accumulatedResults.push(res.result);
-      //         bestResults.push(res.result);
-      //       }
-      //       specialLog('#special-log-mu', res, resultsRetrieved / generatedSet.length);
-      //       $('#muButtonDownload').removeClass('disabled');
+      job.on('result', function(res) {
+        // Show the results come back from the workers in consule and html.
+        if(typeof res != 'undefined') {
+          if(res.result) {
+            resultsRetrieved++;
+            if(res.result[0] !== 0) {
+              accumulatedResults.push(res.result);
+              bestResults.push(res.result);
+            }
+            specialLog('#special-log-mu', res, resultsRetrieved / generatedSet.length);
+            $('#muButtonDownload').removeClass('disabled');
 
-      //       downloadButtonMu.onclick = function () {
-      //         accumulatedResults.sort(mathLib.sortFunction);
-      //         Csv(accumulatedResults,'mu.csv.csv');
-      //       }
-      //     }
-      //   }
-      // });
-      // job.on('complete', async function(res) {
-      //   await job.results.fetch();
-      //   res = job.results.values();
-      //   console.log('onComplete', res);
-      //   runButtonMu.innerText = "Generate & Run"
-      //   $('#buttonRunMu').removeClass('running');
-      //   res = Array.from(res)
-      //   res.sort(mathLib.sortFunction);
-      //   specialLog('#special-log-mu', '\nJob complete! Click download for results.');
-      //   res = Array.from(res)
-      //   res.sort(mathLib.sortFunction);
-      //   res = res.filter((row) => row[0] !== 0 && row[row.length - 1] < 0);
-      //   $('#buttonRunAll').removeClass('disabled');
+            downloadButtonMu.onclick = function () {
+              accumulatedResults.sort(mathLib.sortFunction);
+              Csv(accumulatedResults,'mu.csv.csv');
+            }
+          }
+        }
+      });
+      job.on('complete', async function(res) {
+        await job.results.fetch();
+        res = job.results.values();
+        console.log('onComplete', res);
+        runButtonMu.innerText = "Generate & Run"
+        $('#buttonRunMu').removeClass('running');
+        res = Array.from(res)
+        res.sort(mathLib.sortFunction);
+        specialLog('#special-log-mu', '\nJob complete! Click download for results.');
+        res = Array.from(res)
+        res.sort(mathLib.sortFunction);
+        res = res.filter((row) => row[0] !== 0 && row[row.length - 1] < 0);
+        $('#buttonRunAll').removeClass('disabled');
 
-      //   downloadButtonmu.onclick = function () {
-      //     Csv(res,'mu.csv.csv');
-      //   }
-      // });
-      // return job;
+        downloadButtonMu.onclick = function () {
+          Csv(res,'mu.csv.csv');
+        }
+      });
+      return job;
     }
   } 
 
@@ -952,56 +944,56 @@ function start (workerFn) {
       }
 
       let generatedSet = generate.generateSet(initalRefinPoints, Index.rho, logScale, [lowerLimit,upperLimit], flagBound, NoPoints);
-      // let accumulatedResults = []
+      let accumulatedResults = []
       
       let job = jobs['rho'] = runComputeFor(generatedSet, populationData, birthData, dataCasesUpload, times, indexAll, modelTimestep);
-      // job.on('myCustomError', (e) => {
-      //   specialLog('#special-log-rho', 'Failed to deploy job: ' + e.message);
-      // });
-      // specialLog('#special-log-rho', 'Accessing Distributed Computer...');
-      // job.on('accepted', () => {
-      //   specialLog('#special-log-rho', 'Job accepted, working...');
-      // })
-      // let resultsRetrieved = 0;
+      job.on('myCustomError', (e) => {
+        specialLog('#special-log-rho', 'Failed to deploy job: ' + e.message);
+      });
+      specialLog('#special-log-rho', 'Accessing Distributed Computer...');
+      job.on('accepted', () => {
+        specialLog('#special-log-rho', 'Job accepted, working...');
+      })
+      let resultsRetrieved = 0;
 
-      // job.on('result', function(res) {
-      //   // Show the results come back from the workers in consule and html.
-      //   if(typeof res != 'undefined') {
-      //     if(res.result) {
-      //       resultsRetrieved++;
-      //       if(res.result[0] !== 0) {
-      //         accumulatedResults.push(res.result);
-      //         bestResults.push(res.result);
-      //       }
-      //       specialLog('#special-log-rho', res, resultsRetrieved / generatedSet.length);
-      //       $('#rhoButtonDownload').removeClass('disabled');
+      job.on('result', function(res) {
+        // Show the results come back from the workers in consule and html.
+        if(typeof res != 'undefined') {
+          if(res.result) {
+            resultsRetrieved++;
+            if(res.result[0] !== 0) {
+              accumulatedResults.push(res.result);
+              bestResults.push(res.result);
+            }
+            specialLog('#special-log-rho', res, resultsRetrieved / generatedSet.length);
+            $('#rhoButtonDownload').removeClass('disabled');
 
-      //       downloadButtonRho.onclick = function () {
-      //         accumulatedResults.sort(mathLib.sortFunction);
-      //         Csv(accumulatedResults,'rho.csv.csv');
-      //       }
-      //     }
-      //   }
-      // });
-      // job.on('complete', async function(res) {
-      //   await job.results.fetch();
-      //   res = job.results.values();
-      //   console.log('onComplete', res);
-      //   runButtonRho.innerText = "Generate & Run"
-      //   $('#buttonRunRho').removeClass('running');
-      //   res = Array.from(res)
-      //   res.sort(mathLib.sortFunction);
-      //   specialLog('#special-log-rho', '\nJob complete! Click download for results.');
-      //   res = Array.from(res)
-      //   res.sort(mathLib.sortFunction);
-      //   res = res.filter((row) => row[0] !== 0 && row[row.length - 1] < 0);
-      //   $('#buttonRunAll').removeClass('disabled');
+            downloadButtonRho.onclick = function () {
+              accumulatedResults.sort(mathLib.sortFunction);
+              Csv(accumulatedResults,'rho.csv.csv');
+            }
+          }
+        }
+      });
+      job.on('complete', async function(res) {
+        await job.results.fetch();
+        res = job.results.values();
+        console.log('onComplete', res);
+        runButtonRho.innerText = "Generate & Run"
+        $('#buttonRunRho').removeClass('running');
+        res = Array.from(res)
+        res.sort(mathLib.sortFunction);
+        specialLog('#special-log-rho', '\nJob complete! Click download for results.');
+        res = Array.from(res)
+        res.sort(mathLib.sortFunction);
+        res = res.filter((row) => row[0] !== 0 && row[row.length - 1] < 0);
+        $('#buttonRunAll').removeClass('disabled');
 
-      //   downloadButtonRho.onclick = function () {
-      //     Csv(res,'rho.csv.csv');
-      //   }
-      // });
-      // return job;
+        downloadButtonRho.onclick = function () {
+          Csv(res,'rho.csv.csv');
+        }
+      });
+      return job;
     }
   } 
 
@@ -1057,56 +1049,56 @@ function start (workerFn) {
       }
 
       let generatedSet = generate.generateSet(initalRefinPoints, Index.psi, logScale, [lowerLimit,upperLimit], flagBound, NoPoints);
-      // let accumulatedResults = []
+      let accumulatedResults = []
       
       let job = jobs['psi'] = runComputeFor(generatedSet, populationData, birthData, dataCasesUpload, times, indexAll, modelTimestep);
-      // job.on('myCustomError', (e) => {
-      //   specialLog('#special-log-psi', 'Failed to deploy job: ' + e.message);
-      // });
-      // specialLog('#special-log-psi', 'Accessing Distributed Computer...');
-      // job.on('accepted', () => {
-      //   specialLog('#special-log-psi', 'Job accepted, working...');
-      // })
-      // let resultsRetrieved = 0;
+      job.on('myCustomError', (e) => {
+        specialLog('#special-log-psi', 'Failed to deploy job: ' + e.message);
+      });
+      specialLog('#special-log-psi', 'Accessing Distributed Computer...');
+      job.on('accepted', () => {
+        specialLog('#special-log-psi', 'Job accepted, working...');
+      })
+      let resultsRetrieved = 0;
 
-      // job.on('result', function(res) {
-      //   // Show the results come back from the workers in consule and html.
-      //   if(typeof res != 'undefined') {
-      //     if(res.result) {
-      //       resultsRetrieved++;
-      //       if(res.result[0] !== 0) {
-      //         accumulatedResults.push(res.result);
-      //         bestResults.push(res.result);
-      //       }
-      //       specialLog('#special-log-psi', res, resultsRetrieved / generatedSet.length);
-      //       $('#psiButtonDownload').removeClass('disabled');
+      job.on('result', function(res) {
+        // Show the results come back from the workers in consule and html.
+        if(typeof res != 'undefined') {
+          if(res.result) {
+            resultsRetrieved++;
+            if(res.result[0] !== 0) {
+              accumulatedResults.push(res.result);
+              bestResults.push(res.result);
+            }
+            specialLog('#special-log-psi', res, resultsRetrieved / generatedSet.length);
+            $('#psiButtonDownload').removeClass('disabled');
 
-      //       downloadButtonPsi.onclick = function () {
-      //         accumulatedResults.sort(mathLib.sortFunction);
-      //         Csv(accumulatedResults,'psi.csv.csv');
-      //       }
-      //     }
-      //   }
-      // });
-      // job.on('complete', async function(res) {
-      //   await job.results.fetch();
-      //   res = job.results.values();
-      //   console.log('onComplete', res);
-      //   runButtonPsi.innerText = "Generate & Run"
-      //   $('#buttonRunPsi').removeClass('running');
-      //   res = Array.from(res)
-      //   res.sort(mathLib.sortFunction);
-      //   specialLog('#special-log-psi', '\nJob complete! Click download for results.');
-      //   res = Array.from(res)
-      //   res.sort(mathLib.sortFunction);
-      //   res = res.filter((row) => row[0] !== 0 && row[row.length - 1] < 0);
-      //   $('#buttonRunAll').removeClass('disabled');
+            downloadButtonPsi.onclick = function () {
+              accumulatedResults.sort(mathLib.sortFunction);
+              Csv(accumulatedResults,'psi.csv.csv');
+            }
+          }
+        }
+      });
+      job.on('complete', async function(res) {
+        await job.results.fetch();
+        res = job.results.values();
+        console.log('onComplete', res);
+        runButtonPsi.innerText = "Generate & Run"
+        $('#buttonRunPsi').removeClass('running');
+        res = Array.from(res)
+        res.sort(mathLib.sortFunction);
+        specialLog('#special-log-psi', '\nJob complete! Click download for results.');
+        res = Array.from(res)
+        res.sort(mathLib.sortFunction);
+        res = res.filter((row) => row[0] !== 0 && row[row.length - 1] < 0);
+        $('#buttonRunAll').removeClass('disabled');
 
-      //   downloadButtonPsi.onclick = function () {
-      //     Csv(res,'psi.csv.csv');
-      //   }
-      // });
-      // return job;
+        downloadButtonPsi.onclick = function () {
+          Csv(res,'psi.csv.csv');
+        }
+      });
+      return job;
     }
   } 
 }
