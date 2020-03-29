@@ -306,6 +306,7 @@ function start (workerFn) {
             if(res.result[0] !== 0) {
               accumulatedResults.push(res.result);
             }
+            specialLog('#special-log-sobol', res, resultsRetrieved / sobolSet.length);
             $('#sobolButtonDownload').removeClass('disabled');
 
              downloadButtonSobol.onclick = function () {
@@ -595,6 +596,7 @@ function start (workerFn) {
               accumulatedResults.push(res.result);
               bestResults.push(res.result);
             }
+            specialLog('#special-log-R0', res, resultsRetrieved / generatedSet.length);
             $('#R0ButtonDownload').removeClass('disabled');
 
             downloadButtonR0.onclick = function () {
@@ -700,6 +702,7 @@ function start (workerFn) {
               accumulatedResults.push(res.result);
               bestResults.push(res.result);
             }
+            specialLog('#special-log-amplitude', res, resultsRetrieved / generatedSet.length);
             $('#amplitudeButtonDownload').removeClass('disabled');
 
             downloadButtonAmplitude.onclick = function () {
@@ -805,6 +808,7 @@ function start (workerFn) {
               accumulatedResults.push(res.result);
               bestResults.push(res.result);
             }
+            specialLog('#special-log-mu', res, resultsRetrieved / generatedSet.length);
             $('#muButtonDownload').removeClass('disabled');
 
             downloadButtonMu.onclick = function () {
@@ -910,6 +914,7 @@ function start (workerFn) {
               accumulatedResults.push(res.result);
               bestResults.push(res.result);
             }
+            specialLog('#special-log-rho', res, resultsRetrieved / generatedSet.length);
             $('#rhoButtonDownload').removeClass('disabled');
 
             downloadButtonRho.onclick = function () {
@@ -1015,6 +1020,7 @@ function start (workerFn) {
               accumulatedResults.push(res.result);
               bestResults.push(res.result);
             }
+            specialLog('#special-log-psi', res, resultsRetrieved / generatedSet.length);
             $('#psiButtonDownload').removeClass('disabled');
 
             downloadButtonPsi.onclick = function () {
