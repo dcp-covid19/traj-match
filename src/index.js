@@ -38,7 +38,7 @@ function start (workerFn) {
   let bandwidth = 0.5;
   let lowerBoundsInit = [], upperBoundsInit = [];
   let plotIndex = [Index.R0, Index.amplitude, Index.mu, Index.rho, Index.psi];
-  let indexPlot = ['$R0 $', '$\\alpha $', '$\\mu $', '$\\rho $', '$\\psi$']   
+  let indexPlot = ['R0', 'α', 'μ', 'ρ', 'ѱ']   
   let timeExe = []
   let indexAll
   let modelTimestep = Number(document.getElementById('modelTimestep').value)
