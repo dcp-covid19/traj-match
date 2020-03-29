@@ -7,13 +7,16 @@
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-  <script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_SVG"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async=""></script>
+  <script type=text/x-mathjax-config> MathJax.Hub.Config({
+    tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
+  }); </script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src='https://covid19-scheduler.distributed.computer/dcp-client/dcp-client.js'></script>
 
   <script src="js/bundle.js"></script>
 
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+  <!-- <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML' async></script> -->
   <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" type="text/css" href="./styles/index.css">
@@ -507,7 +510,7 @@
                 </table>
                 <div style="height:142px;">
                   <div class="mdc-text-field mdc-text-field--outlined" id="sobolPointField">
-                    <input class="mdc-text-field__input" id="sobolPoint" type="number" value="1">
+                    <input class="mdc-text-field__input" id="sobolPoint" type="number" value="100">
                     <div class="mdc-notched-outline mdc-notched-outline--no-label mdc-notched-outline--upgraded mdc-notched-outline--notched">
                       <div class="mdc-notched-outline__leading"></div>
                       <div class="mdc-notched-outline__notch veryuniqueclass">
@@ -519,7 +522,7 @@
                   <div class="row">
                     <div class="col-sm-6">
                       <div class="mdc-text-field mdc-text-field--outlined" id="refinementField">
-                        <input class="mdc-text-field__input" id="refineIteration" type="number" value="1">
+                        <input class="mdc-text-field__input" id="refineIteration" type="number" value="3">
                         <div class="mdc-notched-outline mdc-notched-outline--no-label mdc-notched-outline--upgraded mdc-notched-outline--notched">
                           <div class="mdc-notched-outline__leading"></div>
                           <div class="mdc-notched-outline__notch veryuniqueclass" style="width: 200px !important;">
@@ -531,7 +534,7 @@
                     </div>
                     <div class="col-sm-6">
                       <div class="mdc-text-field mdc-text-field--outlined" id="refinementFieldNumber">
-                        <input class="mdc-text-field__input" id="refineIterationNumber" type="number" value="1">
+                        <input class="mdc-text-field__input" id="refineIterationNumber" type="number" value="10">
                         <div class="mdc-notched-outline mdc-notched-outline--no-label mdc-notched-outline--upgraded mdc-notched-outline--notched">
                           <div class="mdc-notched-outline__leading"></div>
                           <div class="mdc-notched-outline__notch veryuniqueclass" style="width: 200px !important;">
