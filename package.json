@@ -6,7 +6,7 @@
   "scripts": {
     "start": "webpack-dev-server --host 0.0.0.0 --disable-host-check",
     "build": "webpack --config webpack.config.js",
-    "build-worker": "webpack --config worker.webpack.config.js",
+    "build-worker": "webpack --config worker.webpack.config.js"
   },
   "author": "Ryan Rossiter",
   "license": "ISC",
