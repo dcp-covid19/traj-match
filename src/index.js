@@ -1283,6 +1283,9 @@ document.addEventListener("DOMContentLoaded", () => {
       
       start(workerFn)
   });
+
+  checkbox = document.getElementById('auto-switch')
+  activeRefine(checkbox);
 });
 
 function trigerPlot(bestResults,indexPlot, PlotParamName, bandwidth, param_lims, xTitle) {

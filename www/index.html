@@ -38,10 +38,10 @@
             <a class="nav-link" target="_blank" href="http://covid19.distributed.computer/">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" href="/">Researcher</a>
+            <a class="nav-link active" href="#">Researcher</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" target="_blank" href="http://dcp.work">Worker</a>
+            <a class="nav-link" target="_blank" href="http://dcp.work/covid19">Worker</a>
           </li>
         </ul>
       </div>
@@ -105,30 +105,6 @@
                       <div class="mdc-notched-outline__leading"></div>
                       <div class="mdc-notched-outline__notch">
                         <label class="mdc-floating-label" >Maximum time step</label>
-                      </div>
-                      <div class="mdc-notched-outline__trailing"></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6">
-                  <div class="mdc-text-field mdc-text-field--outlined" id="tZeroField">
-                    <input class="mdc-text-field__input" id="tZero" type="number" value=0>
-                    <div class="mdc-notched-outline mdc-notched-outline--no-label">
-                      <div class="mdc-notched-outline__leading"></div>
-                      <div class="mdc-notched-outline__notch">
-                        <label class="mdc-floating-label">Start time for the model(t0)</label>
-                      </div>
-                      <div class="mdc-notched-outline__trailing"></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6">
-                  <div class="mdc-text-field mdc-text-field--outlined" id="dtField">
-                    <input class="mdc-text-field__input" id="dt" type="number" value=0.005>
-                    <div class="mdc-notched-outline mdc-notched-outline--no-label">
-                      <div class="mdc-notched-outline__leading"></div>
-                      <div class="mdc-notched-outline__notch">
-                        <label class="mdc-floating-label">Step size for the model(dt)</label>
                       </div>
                       <div class="mdc-notched-outline__trailing"></div>
                     </div>
@@ -509,19 +485,21 @@
                     </tr>
                   </tbody>
                 </table>
-                <div style="height:142px;">
-                  <div class="mdc-text-field mdc-text-field--outlined" id="sobolPointField">
-                    <input class="mdc-text-field__input" id="sobolPoint" type="number" value="100">
-                    <div class="mdc-notched-outline mdc-notched-outline--no-label mdc-notched-outline--upgraded mdc-notched-outline--notched">
-                      <div class="mdc-notched-outline__leading"></div>
-                      <div class="mdc-notched-outline__notch veryuniqueclass">
-                        <label class="mdc-floating-label mdc-floating-label--float-above">Number of initial points for the first search</label>
-                      </div>
-                      <div class="mdc-notched-outline__trailing"></div>
-                    </div>
-                  </div>
+                <div style="margin-top: 20px">
                   <div class="row">
-                    <div class="col-sm-6">
+                    <dic class="col-sm-4">
+                      <div class="mdc-text-field mdc-text-field--outlined" id="sobolPointField">
+                        <input class="mdc-text-field__input" id="sobolPoint" type="number" value="100">
+                        <div class="mdc-notched-outline mdc-notched-outline--no-label mdc-notched-outline--upgraded mdc-notched-outline--notched">
+                          <div class="mdc-notched-outline__leading"></div>
+                          <div class="mdc-notched-outline__notch veryuniqueclass">
+                            <label class="mdc-floating-label mdc-floating-label--float-above">Number of initial points for the first search</label>
+                          </div>
+                          <div class="mdc-notched-outline__trailing"></div>
+                        </div>
+                      </div>
+                    </dic>
+                    <div class="col-sm-4">
                       <div class="mdc-text-field mdc-text-field--outlined" id="refinementField">
                         <input class="mdc-text-field__input" id="refineIteration" type="number" value="3">
                         <div class="mdc-notched-outline mdc-notched-outline--no-label mdc-notched-outline--upgraded mdc-notched-outline--notched">
@@ -533,7 +511,7 @@
                         </div>
                       </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                       <div class="mdc-text-field mdc-text-field--outlined" id="refinementFieldNumber">
                         <input class="mdc-text-field__input" id="refineIterationNumber" type="number" value="10">
                         <div class="mdc-notched-outline mdc-notched-outline--no-label mdc-notched-outline--upgraded mdc-notched-outline--notched">
@@ -563,7 +541,7 @@
                         </div>
                         <div class="progress-item failure" id="model-ind" style="width: 280px !important;">
                           <label class="switch" style="margin-right: 4%;">
-                            <input id="auto-switch" type="checkbox"  checked="checked" onchange ="activeRefine(this)" autocomplete="off">
+                            <input id="auto-switch" type="checkbox" onchange ="activeRefine(this)" autocomplete="off">
                             <span class="slider round"></span>
                           </label>
                           <p id="autoRefinement" style="width: 200px !important;">Automatic refinements</p>
