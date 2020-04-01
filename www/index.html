@@ -48,12 +48,18 @@
     </nav>
     <div class="colored-divider"></div>
   </header>
+
   <section class="application">
     <ul class="nav nav-tabs" id="myTab" role="tablist">
       <li class="nav-item">
-        <a class="nav-link active" id="model-tab" data-toggle="tab" href="#model" role="tab" aria-controls="model" aria-selected="true">
+        <a class="nav-link active" id="intro-tab" data-toggle="tab" href="#intro" role="tab" aria-controls="intro" aria-selected="true">
+          <img src="/assets/intro.svg" />
+          <span class='spanTitle'>Introduction</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="trajmodel-tab" data-toggle="tab" href="#trajmodel" role="tab" aria-controls="trajmodel" aria-selected="false">
           <img src="/assets/lines.svg" />
-
           <span class='spanTitle'>Model & Data</span>
         </a>
       </li>
@@ -67,19 +73,57 @@
       <li class="nav-item">
         <a class="nav-link" id="refinements-tab" data-toggle="tab" href="#refinements" role="tab" aria-controls="refinements" aria-selected="false">
           <img src="/assets/box.svg" />
-
-        <span class='spanTitle'>Refinements</span>
+          <span class='spanTitle'>Refinements</span>
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" id="combine-tab" data-toggle="tab" href="#combine" role="tab" aria-controls="combine" aria-selected="false">
           <img src="/assets/filledbox.svg" />
-        <span class='spanTitle'>Sample Trajectory</span>
+          <span class='spanTitle'>Sample Trajectory</span>
         </a>
       </li>
     </ul>
     <div class="tab-content" id="myTabContent">
-      <div class="tab-pane fade show active" id="model" role="tabpanel" aria-labelledby="model-tab">
+      <div class="tab-pane fade show active" id="intro" role="tabpanel" aria-labelledby="intro-tab">
+        <div class="container" style="margin-top: 6em;">
+          <h1 id="trajectory-matching">Trajectory Matching</h1>
+          <p>Data analysis typically involves identifying regions of parameter space within which a postulated model is statistically consistent with the data. Additionally, one frequently desires to assess the relative merits of alternative models as explanations of the data. </p>
+          <p>A partially observed Markov process (POMP) model consists of incomplete and noisy measurements of a latent, unobserved Markov process. It has been a challenge to provide a software environment that can effectively handle broad classes of POMP models and take advantage of the wide range of statistical methodologies that have been proposed for such models. The pomp software package (King et al. 2016) provides us with a wide range of functions to represent POMP models.</p>
+          <h3 id="what-is">What is trajectory matching?</h3>
+          <p> When dealing with large populations deterministic models are often used. In deterministic compartmental models, the transition rates from one compartment to another are mathematically expressed as derivatives. Hence the model is formulated using ordinary differential equations (ODE), Kermack WO [1927]. Trajectory matching attempts to match trajectories of a deterministic model to data. In fact,  the function estimates the parameter of the model by fitting the trajectory to data. It maximize the likelihood of the data assuming there is no process noise and all stochasticity is measurement error. The R package <a href="https://kingaa.github.io/pomp/install.html">pomp </a> provides useful tools for trajectory matching. </p>
+          <h3 id="model">Model</h3>
+          <p>Infectious diseases of humans have been well-documented in literature and historical records due to their sometimes calamitous effects on civilizations. The effect of a disease on a population varies, depending on the structure of the population (rural or urban, aging or young, easy or difficult access to health care), and the history that the community has had with the specific disease. Mathematical and statistical tools have been used to describe the dynamics of infectious diseases.</p>
+          <p>The SEIR model is an extension of the model first studied by Kermack and McKendrick [1932, 1933]. This is a standard compartmental model framework used in epidemiology in which the hosts have the following compartments available: susceptible, exposed, infected, recovered. Considering N(t) the population at time t,  $$S(t) + E(t) + I(t) + R(t) = N(t)$$</p>
+          <p>Here the number of new infected cases is defined by $$\text{cases}: C(t_1,t_2) = \int_{t_1}^{t_2} B(t) \, \frac{S(t) I(t)}{N(t)}\, dt$$ where \( B(t)\) is the forcing function that reflects the actual seasonally changing circumstances. \(\rho\) is the probability of reporting and  \( \psi \) is reporting overdispersion. Reports between  \((t_1, t_2)\) is normally distributed that is similar to the overdispersed binomial. $$\text{reports} \sim  \text{Normal}(\rho \, C(t_1, t_2), \rho \, (1- \rho)C(t_1, t_2) + ( \psi \rho\, C(t_1, t_2))^2 )$$</p>
+          <div>
+          <figure style="text-align: center;">
+            <img id="SEIR" src="./assets/SEIR.png" width="65%" height="30%" >
+            <figcaption style="margin-left: 10%" >Figure 2: SEIR Model include hidden cases and the report. </figcaption>
+          </figure>
+        </div>
+        <h3 id="tools">Tools for fitting the model</h3>
+          <p>Partially observed Markov process models consist of an unobserved Markov state process, connected to the data via a model of the observation (measurement) process. The process model is determined by the density \(P(x_n|x_{n−1})\) and the measurement process is determined by the density \(P(y_n|x_n)\).</p>
+          <div>
+            <figure style="margin-left: 20%">
+              <img id="pomp" src="./assets/pomp.png" width="70%" height="40%" >
+              <figcaption style="margin-left: 28%">Figure 2: POMP model </figcaption>
+            </figure>
+          </div>
+          <br>
+          <p> Using process model, measurement model and initial point, trajectory matching can optimize the parameter of the model based on the maximum likihood  estimation and fit the model to the data. The result can be illustrated as an simulation.  </p>
+        <figure style="text-align: center;">
+          <img id="data" src="./assets/LondonData.png" width="70%" height="40%" >
+             <figcaption style="text-align:center">Figure 3: Data: A plot of reported measles cases, population sizes of London, the annual birth rates and vaccination rates from 1945 to   1990. Source of data: <a href=http://kingaa.github.io/pomp/vignettes/twentycities.rda>http://kingaa.github.io/pomp/vignettes/twentycities.rda</a> </figcaption>
+        </figure>
+        <br>
+        <br>
+        <figure style="text-align: center;">
+          <img id="simulation" src="./assets/simulation.png" width="50%" height="50%" >
+            <figcaption style="text-align:center">Figure 4: Simulations of the deterministic SEIR Model and its simple extension in the vaccine era. </figcaption>
+        </figure>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="trajmodel" role="tabpanel" aria-labelledby="trajmodel-tab">
           <!-- Model-->
           <div class="container">
             <section class="params">
@@ -171,10 +215,10 @@
                       <p>Data</p>
                     </div>
                     <div class="interact">
-                      <a class="initial-search-1 disabled" id="search-tab" href="#search">Initial Search</a>
+                      <a class="initial-search-1 disabled" id="initial-search" href="#search">Initial Search</a>
                     </div>
                     <script>
-                    $('.progress-ind .interact #search-tab').on('click', function (e) {
+                    $('#initial-search').on('click', function (e) {
                       e.preventDefault()
                       if (!$(this).hasClass('disabled')) {
                         $('#search-tab').tab('show')
@@ -551,14 +595,6 @@
                           <a class="disabled custom-button-style-only" id="sobolButton">Compute</a>
                           <a class="disabled custom-button-style-only" id="sobolButtonDownload"  style="display: none;">Download</a>
                         </div>
-                        <script>
-                        $('.progress-container .interact #refinements-tab-').on('click', function (e) {
-                          e.preventDefault()
-                          if (!$(this).hasClass('disabled')) {
-                            $('#refinements-tab').tab('show')
-                          }
-                        })
-                        </script>
                       </div>
                     </div>
                   </div>
@@ -637,12 +673,6 @@
                             <a class="disabled custom-button-style-only" id="buttonRunAll" >Run All</a>
                             <a class="disabled custom-button-style-only" id="buttonResults">Best Results</a>
                           </div>
-                          <script>
-                          $('.progress-ind .interact #refinements-tab').on('click', function (e) {
-                            e.preventDefault()
-                            $('#refinements-tab').tab('show')
-                          })
-                          </script>
                         </div>
                       </div>
                     </div>
@@ -860,63 +890,67 @@
             </div>
           </section>
       </div>
-      <div class="tab-pane fade show container" id="combine" role="tabpanel" aria-labelledby="model-tab">
-        <div class="row mb-5">
-            <div class="col-sm-6 align-items-center d-flex">
-              <div id="tableResult">
-                <table id ="bestResult-table">
-                  <thead>
-                    <td>LogLik </td>
-                    <td><input class="form-control" type="number"  value=0 ></td>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>\(R0\)</td>
+      <div class="tab-pane fade" id="combine" role="tabpanel" aria-labelledby="combine-tab">
+        <div class="container">
+          <div class="row mb-5">
+              <div class="col-sm-6 align-items-center justify-content-center d-flex">
+                <div id="tableResult">
+                  <table id ="bestResult-table">
+                    <thead>
+                      <td>LogLik </td>
                       <td><input class="form-control" type="number"  value=0 ></td>
-                    </tr>
-                    <tr>
-                      <td>\(\alpha\)</td>
-                      <td><input class="form-control" type="number"  value=0 ></td>
-                    </tr>
-                    <tr>
-                      <td>\(\gamma\)</td>
-                      <td><input class="form-control" type="number"  value=0 ></td>
-                    </tr>
-                    <tr>
-                      <td>\(\mu\)</td>
-                      <td><input class="form-control" type="number"  value=0 ></td>
-                    </tr>
-                    <tr>
-                      <td>\(\sigma\)</td>
-                      <td><input class="form-control" type="number"  value=0 ></td>
-                    </tr>
-                    <tr>
-                      <td>\(\rho\)</td>
-                      <td><input class="form-control" type="number"  value=0 ></td>
-                    </tr>
-                    <tr>
-                      <td>\(\psi\)</td>
-                      <td><input class="form-control" type="number"  value=0 ></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="col-sm-6">
-              <section class="uploads">
-                <div id="plotContainer">
-                  <div id="plot-sampleTraj" ></div>
-                  <div id="graphContainer" >
-                    <div id="fullGraph"></div>
-                  </div>
-                  <div id="tableContainer">
-                    <div id="fullTable"></div>
-                  </div>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>\(R0\)</td>
+                        <td><input class="form-control" type="number"  value=0 ></td>
+                      </tr>
+                      <tr>
+                        <td>\(\alpha\)</td>
+                        <td><input class="form-control" type="number"  value=0 ></td>
+                      </tr>
+                      <tr>
+                        <td>\(\gamma\)</td>
+                        <td><input class="form-control" type="number"  value=0 ></td>
+                      </tr>
+                      <tr>
+                        <td>\(\mu\)</td>
+                        <td><input class="form-control" type="number"  value=0 ></td>
+                      </tr>
+                      <tr>
+                        <td>\(\sigma\)</td>
+                        <td><input class="form-control" type="number"  value=0 ></td>
+                      </tr>
+                      <tr>
+                        <td>\(\rho\)</td>
+                        <td><input class="form-control" type="number"  value=0 ></td>
+                      </tr>
+                      <tr>
+                        <td>\(\psi\)</td>
+                        <td><input class="form-control" type="number"  value=0 ></td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
-              </section>
-            </div>
+              </div>
+              <div class="col-sm-6">
+                <section class="uploads">
+                  <div id="plotContainer">
+                    <div id="plot-sampleTraj" ></div>
+                    <div id="graphContainer" >
+                      <div id="fullGraph"></div>
+                    </div>
+                    <div id="tableContainer">
+                      <div id="fullTable"></div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+          </div>
         </div>
       </div>
+    </div>
+  </section>
   <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
   <script src="js/forms-min.js"></script>
   <script src="./htmlFunctions.js"></script>

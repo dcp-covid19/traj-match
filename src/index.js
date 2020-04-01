@@ -135,42 +135,6 @@ function start (workerFn) {
     }
   }
 
-  function dropHandlerCov(ev) {
-  // Prevent default behavior (Prevent file from being opened)
-  ev.preventDefault();
-  dataCovarUpload = [];
-  if (ev.dataTransfer.items) {
-  // Use DataTransferItemList interface to access the file(s)
-  for (var i = 0; i < ev.dataTransfer.items.length; i++) {
-    // If dropped items aren't files, reject them
-    if (ev.dataTransfer.items[i].kind === 'file') {
-      var file = ev.dataTransfer.items[i].getAsFile();
-      var reader = new FileReader()
-      reader.onload = function () {
-        var lines = this.result.split('\n')
-        for (var line = 1; line < lines.length; line++) {
-          if(lines[line].length) {
-            dataCovarUpload.push(lines[line].split(','))
-          }
-        }
-      }
-      reader.readAsText(file)
-    }
-  }
-  } else {
-  // Use DataTransfer interface to access the file(s)
-  }
-  jQuery('#covariates-file').addClass('uploaded');
-  covUploaded = 1;
-  checkUploaded();
-  }
-  function dragOverHandlerCov(ev) {
-  console.log('File(s) in drop zone');
-
-  // Prevent default behavior (Prevent file from being opened)
-  ev.preventDefault();
-  }
-
   /* SECOND TAB: read values and pass them to sobol function */
   let generateModel = document.getElementById('generateModel')
   t0 = Number(modelt0.value)
@@ -420,7 +384,7 @@ function start (workerFn) {
         
         param_lims[plotIndex[i]] = [lowerLimit,upperLimit];
         setTimeout(() => {
-          trigerPlot(bestResults, plotIndex[i], 'plot'+Object.keys(Index)[plotIndex[i]], bandwidth, param_lims[plotIndex[i]], indexPlot[i])
+          triggerPlot(bestResults, plotIndex[i], 'plot'+Object.keys(Index)[plotIndex[i]], bandwidth, param_lims[plotIndex[i]], indexPlot[i])
         });
       }
     }
@@ -436,7 +400,7 @@ function start (workerFn) {
       } 
     }
 
-    trigerPlotTrajectory(dataCasesUpload, simH, 'plot-sampleTraj')
+    triggerPlotTrajectory(dataCasesUpload, simH, 'plot-sampleTraj')
     let bestPonitTable = document.getElementById('bestResult-table')
     let rows = bestPonitTable.querySelectorAll('tr')
     rows[0].querySelectorAll('td')[1].querySelector('input').value = bestResults[0][Index.LogLik]
@@ -1095,7 +1059,7 @@ function start (workerFn) {
         } 
       }
     
-      trigerPlotTrajectory(dataCasesUpload, simH, 'plot-sampleTraj')
+      triggerPlotTrajectory(dataCasesUpload, simH, 'plot-sampleTraj')
       let bestPonitTable = document.getElementById('bestResult-table')
       let rows = bestPonitTable.querySelectorAll('tr')
       rows[0].querySelectorAll('td')[1].querySelector('input').value = bestResults[0][Index.LogLik]
@@ -1119,7 +1083,7 @@ function start (workerFn) {
           lowerLimit = lowerBoundsInit[plotIndex[i]] 
           upperLimit = (upperBoundsInit[plotIndex[i]] < bestValue) ? ( 1.2 * bestValue): upperBoundsInit[plotIndex[i]];
           param_lims[plotIndex[i]] = [lowerLimit,upperLimit];
-          trigerPlot(bestResults, plotIndex[i], 'plot'+Object.keys(Index)[plotIndex[i]], bandwidth, param_lims[plotIndex[i]],indexPlot[i])
+          triggerPlot(bestResults, plotIndex[i], 'plot'+Object.keys(Index)[plotIndex[i]], bandwidth, param_lims[plotIndex[i]],indexPlot[i])
         }
       }
       console.log('Plots have been refreshed')
@@ -1217,7 +1181,7 @@ function rmSameRow(allSets) {
   }
   return finalSet; 
 }
-function plot2D(data, PlotParamName, xTitle) {
+function plot2D(data, PlotParamName, xTitle, yTitle) {
 
   var layout = {
     width: 600,
@@ -1226,9 +1190,17 @@ function plot2D(data, PlotParamName, xTitle) {
     margin: {'b': 100},
     xaxis: {
       title: {
-        text: xTitle,// '$\\omega $',
+        text: xTitle,
         font: {
-          family: 'Courier New, monospace',
+          size: 20,
+          color: '#7f7f7f'
+        }
+      },
+    },
+    yaxis: {
+      title: {
+        text: yTitle,
+        font: {
           size: 20,
           color: '#7f7f7f'
         }
@@ -1288,9 +1260,8 @@ document.addEventListener("DOMContentLoaded", () => {
   activeRefine(checkbox);
 });
 
-function trigerPlot(bestResults,indexPlot, PlotParamName, bandwidth, param_lims, xTitle) {
+function triggerPlot(bestResults,indexPlot, PlotParamName, bandwidth, param_lims, xTitle) {
   let pairs = [];
-  let interpolateX =[], interpolateY = [];
   let plotData = plotProfile(bestResults, indexPlot, param_lims);
   
   if (plotData < 0) {
@@ -1351,10 +1322,10 @@ function trigerPlot(bestResults,indexPlot, PlotParamName, bandwidth, param_lims,
   }; 
   
   var dataPlot = [trace1, trace2, trace3, trace4];
-  plot2D(dataPlot, PlotParamName, xTitle)
+  plot2D(dataPlot, PlotParamName, xTitle, 'LogLik')
 }
 
-function trigerPlotTrajectory(dataInput, simHarranged, PlotParamName) {
+function triggerPlotTrajectory (dataInput, simHarranged, PlotParamName) {
   let times = [];
   let data = [];
 
@@ -1380,5 +1351,5 @@ function trigerPlotTrajectory(dataInput, simHarranged, PlotParamName) {
   };
 
   var dataPlot = [trace1, trace2];
-  plot2D(dataPlot, PlotParamName)
+  plot2D(dataPlot, PlotParamName, 'year', 'cases')
 }
